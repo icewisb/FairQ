@@ -22,16 +22,19 @@ type maintenance struct {
 	random                func() float64
 	batchSize, maxBatches int
 	pause                 time.Duration
+	retention             time.Duration
 	logger                *slog.Logger
 }
 
-func (m *maintenance) tick(ctx context.Context) tickStats {
-	var stats tickStats
+func (m *maintenance) tick(ctx context.Context) (stats tickStats) {
+	defer func() {
+		m.store.RecordMaintenance(m.kind, stats.Scanned, stats.Converted, stats.Isolated, stats.Failed)
+	}()
 	for batch := 0; batch < m.maxBatches; batch++ {
 		if ctx.Err() != nil {
 			return stats
 		}
-		page, err := m.store.Scan(ctx, m.kind, m.cursor, m.batchSize, 0)
+		page, err := m.store.Scan(ctx, m.kind, m.cursor, m.batchSize, m.retention)
 		if err != nil {
 			stats.Failed++
 			m.logger.Error("maintenance scan failed", "operation", m.kind, "error", err)
@@ -53,8 +56,10 @@ func (m *maintenance) tick(ctx context.Context) tickStats {
 				if err == nil {
 					_, err = m.store.Recover(ctx, c, delay)
 				}
-			} else {
+			} else if m.kind == "retry" {
 				err = m.store.Forward(ctx, c)
+			} else {
+				err = m.store.Clean(ctx, m.kind, c, m.retention)
 			}
 			switch {
 			case err == nil:
@@ -64,7 +69,9 @@ func (m *maintenance) tick(ctx context.Context) tickStats {
 			case fairq.IsCode(err, fairq.StateConflict) || fairq.IsCode(err, fairq.Empty):
 			default:
 				stats.Failed++
-				m.logger.Error("maintenance conversion failed", "operation", m.kind, "task_id", c.ID, "error", err)
+				if stats.Failed == 1 {
+					m.logger.Error("maintenance conversion failed", "operation", m.kind, "task_id", c.ID, "error", err)
+				}
 			}
 		}
 		if page.Next == 0 || page.Scanned == 0 || batch == m.maxBatches-1 {

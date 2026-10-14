@@ -69,7 +69,7 @@ func TestValidationAndUnknownID(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer c.Close()
-	for _, opts := range []fairq.EnqueueOptions{{}, {GroupKey: "x", MaxRetry: -1}, {GroupKey: "x", Timeout: -time.Second}, {GroupKey: "x", Timeout: time.Nanosecond}, {GroupKey: "x", Retention: time.Second}} {
+	for _, opts := range []fairq.EnqueueOptions{{}, {GroupKey: "x", MaxRetry: -1}, {GroupKey: "x", Timeout: -time.Second}, {GroupKey: "x", Timeout: time.Nanosecond}, {GroupKey: "x", Retention: -time.Second}} {
 		if _, err := c.Enqueue(ctx, fairq.Task{Type: "x"}, opts); err == nil {
 			t.Fatal("accepted invalid options")
 		}

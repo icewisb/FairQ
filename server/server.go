@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"math/rand/v2"
+	"net/http"
 	"sync"
 	"time"
 
@@ -27,6 +28,8 @@ type Server struct {
 	logMu                        sync.Mutex
 	lastError                    time.Time
 }
+
+func (s *Server) MetricsHandler() http.Handler { return s.store.MetricsHandler() }
 
 func New(ctx context.Context, cfg Config) (*Server, error) {
 	if err := cfg.defaults(); err != nil {
@@ -53,8 +56,9 @@ func (s *Server) Start(handler fairq.Handler) error {
 	bg, bgCancel := context.WithCancel(context.Background())
 	s.pollCancel = pollCancel
 	s.backgroundCancel = bgCancel
-	s.background.Add(3)
+	s.background.Add(4)
 	go func() { defer s.background.Done(); s.heartbeat(bg) }()
+	go func() { defer s.background.Done(); s.cleaner(bg) }()
 	go func() { defer s.background.Done(); s.maintain(bg, "lease", s.cfg.RecoverInterval) }()
 	go func() { defer s.background.Done(); s.maintain(bg, "retry", s.cfg.ForwarderInterval) }()
 	s.workers.Add(s.cfg.Concurrency)

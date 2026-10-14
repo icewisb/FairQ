@@ -14,7 +14,10 @@ import (
 //go:embed lua/*.lua
 var scripts embed.FS
 
-type Store struct{ Redis *redis.Client }
+type Store struct {
+	Redis   *redis.Client
+	metrics *metrics
+}
 
 func New(ctx context.Context, options redis.UniversalOptions) (*Store, error) {
 	if options.IsClusterMode || (options.MasterName == "" && len(options.Addrs) > 1) {
@@ -28,6 +31,8 @@ func New(ctx context.Context, options redis.UniversalOptions) (*Store, error) {
 	} else {
 		c = redis.NewClient(options.Simple())
 	}
+	m := newMetrics()
+	c.AddHook(metricsHook{m: m})
 	info, err := c.Info(ctx, "cluster").Result()
 	if err != nil {
 		c.Close()
@@ -37,7 +42,7 @@ func New(ctx context.Context, options redis.UniversalOptions) (*Store, error) {
 		c.Close()
 		return nil, fmt.Errorf("fairq: Redis Cluster is unsupported")
 	}
-	s := &Store{Redis: c}
+	s := &Store{Redis: c, metrics: m}
 	return s, nil
 }
 func (s *Store) Close() error { return s.Redis.Close() }
@@ -57,17 +62,31 @@ func script(name string) *redis.Script {
 func (s *Store) run(ctx context.Context, name string, script *redis.Script, args ...any) ([]any, error) {
 	r, err := script.Run(ctx, s.Redis, scriptKeys, args...).Slice()
 	if err != nil {
+		s.metrics.operation(name, "INTERNAL")
 		return nil, &fairq.Error{Code: fairq.Internal, Op: name, Err: err}
 	}
 	if len(r) == 0 {
+		s.metrics.operation(name, "INTERNAL")
 		return nil, &fairq.Error{Code: fairq.Internal, Op: name, Err: fmt.Errorf("empty script reply")}
 	}
 	code, ok := r[0].(string)
 	if !ok {
+		s.metrics.operation(name, "INTERNAL")
 		return nil, &fairq.Error{Code: fairq.Internal, Op: name, Err: fmt.Errorf("invalid script reply")}
 	}
 	if code != "OK" {
+		s.metrics.operation(name, code)
 		return nil, &fairq.Error{Code: fairq.Code(code), Op: name}
+	}
+	if name != "retry" {
+		s.metrics.operation(name, "OK")
+	}
+	if (name == "retry" || name == "recover") && len(r) > 1 {
+		op := "retry"
+		if r[1] == "archived" {
+			op = "archive"
+		}
+		s.metrics.operation(op, "OK")
 	}
 	return r[1:], nil
 }

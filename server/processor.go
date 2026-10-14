@@ -184,6 +184,6 @@ func (s *Server) finish(e *execution, handlerErr error, decode bool) {
 		}
 	}
 	if err != nil {
-		s.logError("finish", err)
+		s.cfg.Logger.Error("task state submission failed", "task_id", e.attempt.ID, "group", e.attempt.Group, "attempt", e.attempt.Token[:min(8, len(e.attempt.Token))], "error", err)
 	}
 }

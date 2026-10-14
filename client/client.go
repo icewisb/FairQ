@@ -4,6 +4,7 @@ package client
 import (
 	"context"
 	"fmt"
+	"net/http"
 
 	"fairq"
 	"fairq/internal/base"
@@ -35,7 +36,8 @@ func New(ctx context.Context, config Config) (*Client, error) {
 	}
 	return &Client{store: s, maxPayload: config.MaxPayload}, nil
 }
-func (c *Client) Close() error { return c.store.Close() }
+func (c *Client) Close() error                 { return c.store.Close() }
+func (c *Client) MetricsHandler() http.Handler { return c.store.MetricsHandler() }
 
 func (c *Client) Enqueue(ctx context.Context, task fairq.Task, opts fairq.EnqueueOptions) (fairq.TaskInfo, error) {
 	if task.ID == "" {
@@ -45,9 +47,6 @@ func (c *Client) Enqueue(ctx context.Context, task fairq.Task, opts fairq.Enqueu
 	group, msg, err := base.Validate(task, opts, c.maxPayload)
 	if err != nil {
 		return info, err
-	}
-	if opts.Retention > 0 {
-		return info, fmt.Errorf("fairq: retention is not enabled in this release")
 	}
 	return c.store.Enqueue(ctx, task, opts, group, msg)
 }
