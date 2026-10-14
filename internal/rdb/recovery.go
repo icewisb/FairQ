@@ -20,8 +20,8 @@ type Transition struct {
 	At         time.Time
 }
 type Candidate struct {
-	ID, Token, Score, Group, State string
-	RetryCount                     int
+	ID, Token, Score, Group string
+	RetryCount              int
 }
 type Page struct {
 	Next, Scanned int
@@ -84,14 +84,14 @@ func (s *Store) Scan(ctx context.Context, kind string, offset, limit int, retent
 	page.Scanned = int(sc)
 	for _, v := range rows {
 		row, ok := v.([]any)
-		if !ok || len(row) != 6 {
+		if !ok || len(row) != 5 {
 			return page, &fairq.Error{Code: fairq.Internal, Op: "scan"}
 		}
 		count, err := strconv.Atoi(fmt.Sprint(row[2]))
 		if err != nil {
 			count = -1
 		}
-		page.Candidates = append(page.Candidates, Candidate{ID: fmt.Sprint(row[0]), Token: fmt.Sprint(row[1]), RetryCount: count, Score: fmt.Sprint(row[3]), Group: fmt.Sprint(row[4]), State: fmt.Sprint(row[5])})
+		page.Candidates = append(page.Candidates, Candidate{ID: fmt.Sprint(row[0]), Token: fmt.Sprint(row[1]), RetryCount: count, Score: fmt.Sprint(row[3]), Group: fmt.Sprint(row[4])})
 	}
 	return page, nil
 }

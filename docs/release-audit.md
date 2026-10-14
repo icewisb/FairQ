@@ -17,7 +17,7 @@ codebase-memory `index_repository` 因 daemon coordination 校验失败，`check
 | 优先级 | 发现 | 决定 |
 |---|---|---|
 | P1 | 合法的大 MaxRetry / retry_count 经 Lua tostring 变为科学计数法，任务已变为 Active 后 Go ParseInt 才失败；恢复/失败响应也有同类问题 | 已修复：数字直接返回 RESP integer，保持精确整数范围；新增真实 Redis 边界闭环测试 |
-| P2 | no_indexes 与 state_indexes 的 pending 分支重复；Scan 读取/返回未使用的 State；metrics DialHook 仅透传 | 后续同批最小简化，不改变原子边界或校验 |
+| P2 | no_indexes 与 state_indexes 的 pending 分支重复；Scan 读取/返回未使用的 State；metrics DialHook 仅透传 | 已实施最小简化：复用 pending 检查，删除候选 State，4次HGET合并为1次HMGET，DialHook直接返回 next；不改变原子边界或校验 |
 | P2 | README 无完整可运行程序、安装状态和 License 说明；历史交接指令混入当前文档 | 重写使用入口，归档历史计划/进度，保留原设计及失败证据 |
 | 发布阻塞 | 无 LICENSE，无 Git remote，go.mod 为本地 module fairq | 不能猜测版权人、许可证或发布路径；正式版本前由维护者确定 |
 | 生产阻塞 | 历史 P01 失败，完整复验和目标环境/业务灰度未完成 | 保持 FAIL / NOT_RUN；本地回归不能关闭该门禁 |
@@ -70,3 +70,5 @@ GQM 用 embed 和脚本注册表；RR 起点来自单进程 pool 的原子计数
 第一批：真实 Redis 8.0.2 复现 `tostring(9007199254740990)` 得到 `9.007199254741e+15`，直接整数响应保持 `9007199254740990`。新增 `TestLargeRetryIntegersRoundTrip` 在旧代码两个子用例均 FAIL；修复后 `FAIRQ_TEST_REDIS=127.0.0.1:16403 go test -race ./internal/rdb -count=1 -v` PASS，包耗时5.836s，包含48例故障矩阵与10进程×80槽领取。测试前缀不变，无数据迁移。
 
 后续简化、文档整理、最终回归及发布准备度将在本记录中更新。Git 提交采用独立可验收批次，以实际 `git log` 为准。
+
+第二批：`FAIRQ_TEST_REDIS=127.0.0.1:16403 go test -race ./client ./internal/rdb ./server -count=1 -v` PASS：client 4.232s、rdb 8.721s、server 24.333s（包并行，不能相加作为总耗时）。覆盖入队并发/去重、候选读取与重验、10进程恢复/转发、坏队首推进、终态清理、指标、48例故障矩阵、Worker关闭及 kill/recover。Lua 文件数仍10，common 87→83行，scan 27→25行，总267→261行；每个正常到期候选减少3次脚本内部 Redis 调用，网络往返不变。公开 Go API 与依赖不变；仅 internal/rdb.Candidate 删除未使用的 State 字段。

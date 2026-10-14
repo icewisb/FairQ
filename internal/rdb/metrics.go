@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"net"
 	"net/http"
 	"sort"
 	"strconv"
@@ -55,7 +54,7 @@ func (m *metrics) observe(command string, d time.Duration) {
 type metricsHook struct{ m *metrics }
 
 func (h metricsHook) DialHook(next redis.DialHook) redis.DialHook {
-	return func(ctx context.Context, network, addr string) (net.Conn, error) { return next(ctx, network, addr) }
+	return next
 }
 func (h metricsHook) ProcessHook(next redis.ProcessHook) redis.ProcessHook {
 	return func(ctx context.Context, cmd redis.Cmder) error {

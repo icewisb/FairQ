@@ -3,7 +3,7 @@ local maxretry,timeout,retention = number(ARGV[4]),task_duration(ARGV[5]),task_d
 if not id or id=='' or not group or group=='' or not msg or not maxretry or not timeout or not retention then return {'INTERNAL'} end
 local task,pending=taskkey(id),pendingkey(group)
 if redis.call('EXISTS',task)==1 then return {'TASK_ID_CONFLICT'} end
-if not index_types() or not no_indexes(id) or not group_valid(group) then return {'INTERNAL'} end
+if not index_types() or not state_indexes(id,'pending') or not group_valid(group) then return {'INTERNAL'} end
 local now=nowms()
 redis.call('HSET',task,'msg',msg,'group',group,'state','pending','retry_count',0,
     'max_retry',maxretry,'timeout_ms',timeout,'retention_ms',retention,'enqueued_at',now,'pending_since',now)

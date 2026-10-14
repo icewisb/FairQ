@@ -11,14 +11,12 @@ for i=1,#entries,2 do
     local id,score=entries[i],entries[i+1]
     if tonumber(score)<=cutoff then
         local key=taskkey(id)
-        local token,count,group,state='','','',''
+        local token,count,group='','',''
         if typ(key,'hash') then
-            token=redis.call('HGET',key,'attempt_token') or ''
-            count=redis.call('HGET',key,'retry_count') or ''
-            group=redis.call('HGET',key,'group') or ''
-            state=redis.call('HGET',key,'state') or ''
+            local fields=redis.call('HMGET',key,'attempt_token','retry_count','group')
+            token,count,group=fields[1] or '',fields[2] or '',fields[3] or ''
         end
-        table.insert(rows,{id,token,count,score,group,state})
+        table.insert(rows,{id,token,count,score,group})
     end
 end
 local scanned=#entries/2
