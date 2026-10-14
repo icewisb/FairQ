@@ -1,5 +1,5 @@
 local id,token=ARGV[1],ARGV[2]
-if not id or id=='' or not token then return {'INTERNAL'} end
+if not id or id=='' or not token or not index_types() then return {'INTERNAL'} end
 local now=nowms()
 local code=owner(id,token,now)
 if code~='OK' then return {code} end

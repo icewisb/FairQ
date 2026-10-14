@@ -49,7 +49,8 @@ local function evidence(op,reason,source,id,group,state,score)
 end
 local function owner(id,token,now)
     local key=taskkey(id)
-    if not index_types() or not typ(key,'hash') then return 'INTERNAL' end
+    -- Callers validate shared index types once before processing any tasks.
+    if not typ(key,'hash') then return 'INTERNAL' end
     if redis.call('HGET',key,'state')~='active' or token=='' or redis.call('HGET',key,'attempt_token')~=token then return 'STATE_CONFLICT' end
     if not state_indexes(id,'active') then return 'STATE_CONFLICT' end
     local deadline=number(redis.call('ZSCORE',lease,id))

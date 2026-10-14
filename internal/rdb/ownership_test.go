@@ -2,6 +2,7 @@ package rdb_test
 
 import (
 	"context"
+	"reflect"
 	"testing"
 	"time"
 
@@ -9,6 +10,36 @@ import (
 	"fairq/internal/rdb"
 	"github.com/redis/go-redis/v9"
 )
+
+func TestOwnershipRejectsWrongIndexTypesBeforeWrites(t *testing.T) {
+	for _, key := range []string{rdb.Active, rdb.Lease, rdb.Retry, rdb.Archived, rdb.Completed} {
+		t.Run(key, func(t *testing.T) {
+			s, c := store(t)
+			ctx := context.Background()
+			enqueue(t, s, "a", "g")
+			a, err := s.Dequeue(ctx, time.Minute)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err := c.Set(ctx, key, "wrong type", 0).Err(); err != nil {
+				t.Fatal(err)
+			}
+			before := dumpDB(t, c)
+			if _, err := s.Heartbeat(ctx, []rdb.Attempt{a, a}, time.Hour); !fairq.IsCode(err, fairq.Internal) {
+				t.Fatal("heartbeat", err)
+			}
+			if err := s.Done(ctx, a); !fairq.IsCode(err, fairq.Internal) {
+				t.Fatal("done", err)
+			}
+			if _, err := s.Fail(ctx, a, time.Second, "failure", false); !fairq.IsCode(err, fairq.Internal) {
+				t.Fatal("retry", err)
+			}
+			if !reflect.DeepEqual(before, dumpDB(t, c)) {
+				t.Fatal("invalid index type caused partial writes")
+			}
+		})
+	}
+}
 
 func TestOwnershipAndServerTime(t *testing.T) {
 	s, c := store(t)
