@@ -45,3 +45,13 @@ local function evidence(op,reason,source,id,group,state,score)
     local res=redis.pcall('RPUSH',badrefs,record)
     return type(res)~='table' or not res.err
 end
+local function owner(id,token,now)
+    local key=taskkey(id)
+    if not index_types() or not typ(key,'hash') then return 'INTERNAL' end
+    if redis.call('HGET',key,'state')~='active' or token=='' or redis.call('HGET',key,'attempt_token')~=token then return 'STATE_CONFLICT' end
+    if not state_indexes(id,'active') then return 'STATE_CONFLICT' end
+    local deadline=number(redis.call('ZSCORE',lease,id))
+    if not deadline then return 'INTERNAL' end
+    if deadline<=now then return 'LEASE_EXPIRED' end
+    return 'OK'
+end
