@@ -11,7 +11,7 @@ FAIRQ_TEST_REDIS=127.0.0.1:16380 FAIRQ_REDIS_SERVER=/path/to/redis-server go tes
 FAIRQ_TEST_REDIS=127.0.0.1:16380 FAIRQ_REDIS_SERVER=/path/to/redis-server go test -race ./...
 ```
 
-包使用不同DB：client=1、rdb=2、server=3、inspector=4。同一数据库的顶层fixture使用本地文件锁，防止两次go test交叉FlushDB；子进程只接入，不清库。该锁仅属于测试环境，不是FairQ生产分布式锁。
+包使用不同DB：client=1、rdb=2、server=3、inspector=4、examples/basic=6。同一数据库的顶层fixture使用本地文件锁，防止两次go test交叉FlushDB；子进程只接入，不清库。该锁仅属于测试环境，不是FairQ生产分布式锁。
 
 ## 多进程测试网络故障对照（2026-10-14）
 
@@ -41,10 +41,10 @@ go run ./tools/loadtest -redis 127.0.0.1:16400 -groups 10 -backlog 100 -processe
 
 工具拒绝非空DB5，绝不自动FlushDB。命令成功退出说明该次负载的正确性检查通过；JSON中的 `Passed` 仍表示原P01完整长稳验收，短跑保持false，不能据此宣称生产长稳通过。外部执行记录按稳定ID守恒，不增加Redis账本Key。30秒冒烟也不覆盖60秒后才开始的goroutine增长判定。
 
-历史首轮曾执行1000 Group、10进程×80槽、约10万Pending、Handler1s的60分钟长稳，结果失败，见 [原始报告](reports/soak-20261014-failed.json)。保留原验收阈值和失败证据；当前 goroutine 峰值问题暂缓，不自动重跑长测或继续诊断。
+历史首轮曾执行1000 Group、10进程×80槽、约10万Pending、Handler1s的60分钟长稳，结果失败，见 [原始报告](reports/soak-20261014-failed.json)。保留原验收阈值和失败证据；后续修复与证据边界见 [专项记录](reports/p01-goroutine-20261014.md)，本次不重跑60分钟长测。
 
 `go run ./tools/benchmark -redis 127.0.0.1:16401 -report /path/to/perf.json` 同样只接受空DB5；预置1000 Group/10万任务，独立测量99999次Dequeue（另1次预热）、10万Lease集中到期恢复。每批≤100/每tick≤500，批间10ms；为了测极端压力，tick之间不等10s。该结果不能当作默认RecoverInterval下的清空时间。工具保留10万Retry供核查，运行结束后只可清理自己建立的隔离实例。
 
 性能Redis必须独立：benchmark 会 CONFIG RESETSTAT；运行前须配置显式maxmemory/noeviction，推荐AOF everysec。历史长稳与后续短测为16400/DB5，性能为16401/DB5；768MiB预算。采样使用Apple M4 Pro、48GiB RAM、macOS arm64、Go1.27.1、Redis8.0.2，loopback网络；正式数据中心硬件、网络与生产配置仍须复测。
 
-历史报告及开发进度中的 `cmd/fairq-load`、`cmd/fairq-perf` 是当时的源码路径，保留原样供对应提交复现；当前入口分别为 `tools/loadtest`、`tools/benchmark`。
+历史报告及归档开发进度中的 `cmd/fairq-load`、`cmd/fairq-perf` 是当时的源码路径，保留原样供对应提交复现；当前入口分别为 `tools/loadtest`、`tools/benchmark`。

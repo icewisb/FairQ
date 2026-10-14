@@ -1,3 +1,5 @@
+> 历史归档：保留当时的计划、证据与交接上下文，不作为当前操作指令。当前事实见 [发布审计](../release-audit.md) 和 [验收报告](../acceptance-report.md)。
+
 # FairQ 开发进度
 
 更新时间：2026-10-14（Asia/Shanghai）。开始时必须与git历史、代码和测试核对。
@@ -9,7 +11,7 @@
 - 未完成：历史 P01 单次峰值的直接取证、完整长稳复验及生产目标环境/业务灰度验收；本机Sentinel真实切换已通过。10 分钟稳定性测试和60分钟复验均 NOT_RUN。
 - 已知边界：Hash存续期去重；业务At-least-once幂等；Sentinel非零RPO；运行时Lua错误不回滚。
 - 阻塞：无已确认P0架构阻塞。codebase-memory索引服务启动失败，已直接检查源文件；后续图覆盖不可用时使用源文件核验。隔离Docker容器 fairq-dev-01a13941，127.0.0.1:16379；测试显式选用DB1..15，禁止指向生产。
-- 本次收尾：只提交采样修复、回归测试及[专项证据](reports/p01-goroutine-20261014.md)，清理临时诊断代码，不推送、不运行新压测。完整生产门禁保持未通过；下文暂缓诊断的指示属于历史记录。
+- 本次收尾：只提交采样修复、回归测试及[专项证据](../reports/p01-goroutine-20261014.md)，清理临时诊断代码，不推送、不运行新压测。完整生产门禁保持未通过；下文暂缓诊断的指示属于历史记录。
 
 ## 阶段记录
 
@@ -19,13 +21,13 @@
 
 继续核对 v1.4 的必要字段写前校验及 Timeout/Retention 契约，真实 Redis 复现 timeout_ms=9223372036855 被成功领取并转换为负 time.Duration；更大的损坏值还可能在领取已写入后才解析失败。retention_ms 也存在 Lua 接受、GetTask 拒绝的范围不一致。修复公共 Lua 任务时长校验，并用于 Enqueue/Dequeue/Done；超 Go 时长上限返回 INTERNAL 且 DUMP 完全不变。Inspector 同步按 Go 时长上限报告 FIELD；其它数值仍按 Lua 精确整数范围检查。最大合法整数毫秒的入队→领取→完成→查询回归通过。正常公共 API 可表达的合法值范围未缩小，未改变任务状态机或增加 Key。
 
-验证使用本次新建的一次性 Redis 8.0.2，127.0.0.1:16402，DB1..4；client、inspector、internal/rdb、server 全包 race 回归及 go vet ./... 通过，包含多进程领取/维护器、48例故障注入与 Worker 生命周期；见 [验证记录](reports/task-duration-20261014.txt)。codebase-memory 仍无法索引，覆盖不可用，采用源码和调用方检索核验。未重跑独立基础设施、容量或长稳演练，P01与生产灰度状态不变。
+验证使用本次新建的一次性 Redis 8.0.2，127.0.0.1:16402，DB1..4；client、inspector、internal/rdb、server 全包 race 回归及 go vet ./... 通过，包含多进程领取/维护器、48例故障注入与 Worker 生命周期；见 [验证记录](../reports/task-duration-20261014.txt)。codebase-memory 仍无法索引，覆盖不可用，采用源码和调用方检索核验。未重跑独立基础设施、容量或长稳演练，P01与生产灰度状态不变。
 
 ### 独立缺口修复：Inspector 数值对账（2026-10-14）
 
 对照 v1.4 §6.3、contracts §2 与源码，发现 X06 的数值损坏检查有遗漏：Lease/Retry/Archived/Completed 的非法 score、Hash 超出 Lua 精确整数范围的字段，以及负 pending_since，可能得到 Complete=true 且 Issues 为空的报告。真实 Redis 新增用例先复现失败，再修复只读 Inspector：非法时间索引返回 SCORE，非法 Hash 数值返回 FIELD；合法边界 0 与 2^53−1 保持可检查。DUMP 前后比较确认没有改写现场。没有修改队列状态转换、Worker 或验收阈值。
 
-本次重新启动隔离 Redis 8.0.2 于 127.0.0.1:16402，仅测试 DB2/DB4；没有清空历史实例。Inspector 全包及依赖它的48例脚本故障矩阵 race 定向回归通过，相关包 go vet 通过，见 [验证记录](reports/inspector-numeric-20261014.txt)。codebase-memory 索引仍失败，已对本次依赖路径请求覆盖检查并直接读取源文件、检索调用方核验。
+本次重新启动隔离 Redis 8.0.2 于 127.0.0.1:16402，仅测试 DB2/DB4；没有清空历史实例。Inspector 全包及依赖它的48例脚本故障矩阵 race 定向回归通过，相关包 go vet 通过，见 [验证记录](../reports/inspector-numeric-20261014.txt)。codebase-memory 索引仍失败，已对本次依赖路径请求覆盖检查并直接读取源文件、检索调用方核验。
 
 本次核对未发现需要另建组件的依据；后续按新证据推进独立缺口或交付工作。P01 峰值仍暂缓且未通过，目标生产环境与业务灰度仍未执行。本次不重跑未受影响的完整基础设施/性能验收，不运行长测，不推送。
 
@@ -51,9 +53,9 @@
 ## 阶段7执行记录
 
 - 2026-10-14 本机真实Redis：48例故障涵盖执行前断连、执行后丢响应、超时、Lua首写前/首写后错误、主索引类型错误。部分写入保留Hash且Inspector发现；类型错误DUMP前后完全相同。
-- 全量 `FAIRQ_TEST_REDIS=127.0.0.1:16380 FAIRQ_REDIS_SERVER=/private/tmp/fairq-native-redis/redis-8.0.2/src/redis-server go test -race ./... -count=1` 通过；新增工具race与go vet通过。基础设施实测原始记录见 reports/infrastructure-20261014.txt。
+- 全量 `FAIRQ_TEST_REDIS=127.0.0.1:16380 FAIRQ_REDIS_SERVER=/path/to/redis-server go test -race ./... -count=1` 通过；新增工具race与go vet通过。基础设施实测原始记录见 reports/infrastructure-20261014.txt。
 - reports/perf-20261014.json：Dequeue Lua p99上界0.066ms、API p99 0.160292ms；10万Lease恢复19.154s、p99 0.360875ms、100000扫描/转换、单tick≤500；159347712 bytes峰值，预算805306368 bytes。Inspector完整检查10万任务，无异常。
-- 首轮长稳由当前会话启动，地址16400/DB5，日志 /private/tmp/fairq-soak.log；现已结束，原始报告为 docs/reports/soak-20261014-failed.json。后续遵循用户最新要求，不重跑一小时测试。
+- 首轮长稳由当前会话启动，地址16400/DB5，原始临时日志未纳入仓库；现已结束，原始报告为 docs/reports/soak-20261014-failed.json。后续遵循用户最新要求，不重跑一小时测试。
 
 - 多进程测试增加仅测试用文件起跑屏障：10进程/800槽全就绪后同时领取；维护器同样同步启动。race目标回归通过，见 reports/multiprocess-20261014.txt。补充默认Done删除后的TaskID复用与旧token不能结束新任务的测试。
 

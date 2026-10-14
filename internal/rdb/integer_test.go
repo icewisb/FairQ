@@ -3,6 +3,7 @@ package rdb_test
 import (
 	"context"
 	"fmt"
+	"math"
 	"testing"
 	"time"
 
@@ -18,7 +19,8 @@ func TestLargeRetryIntegersRoundTrip(t *testing.T) {
 			s, c := store(t)
 			ctx := context.Background()
 			task := fairq.Task{ID: "large-integers", Type: "test"}
-			opts := fairq.EnqueueOptions{GroupKey: "g", MaxRetry: base.MaxExactInteger - 1}
+			limit := min(int64(base.MaxExactInteger-1), int64(math.MaxInt)-1)
+			opts := fairq.EnqueueOptions{GroupKey: "g", MaxRetry: int(limit)}
 			group, msg, err := base.Validate(task, opts, base.MaxPayload)
 			if err != nil {
 				t.Fatal(err)

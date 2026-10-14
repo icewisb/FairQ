@@ -9,7 +9,7 @@ codebase-memory `index_repository` 因 daemon coordination 校验失败，`check
 实际阅读的外部源码：
 
 - [Asynq v0.25.1 rdb.go](https://github.com/hibiken/asynq/blob/v0.25.1/internal/rdb/rdb.go)：Enqueue、Dequeue、Done、Retry、Archive、Forward、ListLeaseExpired、ExtendLease；以及同版本 processor.go、heartbeat.go、recoverer.go、rdb_test.go 的相关实现与测试 fixture、LICENSE。
-- [GQM b090d225](https://github.com/benedict-erwin/gqm/tree/b090d225caa3a3d90a4e4bd5d17bb440f9067b7e)：scripts.go、lua/dequeue.lua、retry.lua、reap.lua，worker.go 的轮转、重试及 heartbeat，reaper.go 和相关测试、LICENSE。下载时 main 对应此 SHA；未运行外部项目测试。
+- [GQM b090d225](https://github.com/benedict-erwin/gqm/tree/b090d225caa3a3d90a4e4bd5d17bb440f9067b7e)：scripts.go、lua/dequeue.lua、retry.lua、reap.lua，worker.go 的轮转、重试及 heartbeat，reaper.go 和相关测试、LICENSE。已将 main 下载内容与该 SHA 的独立归档逐文件比对一致；未运行外部项目测试。
 - [Redis Lua 文档](https://redis.io/docs/latest/develop/programmability/eval-intro/)：脚本执行隔离、缓存及协议转换。Lua 隔离不等于运行时出错回滚；FairQ 的部分写入故障矩阵专门检查这一点。
 
 ## 问题与处理顺序
@@ -26,7 +26,7 @@ codebase-memory `index_repository` 因 daemon coordination 校验失败，`check
 
 ## Lua 逐文件审计
 
-基线为 10 个文件、267 行（`wc -l internal/rdb/lua/*.lua`）：9 个可执行脚本，加 1 个共享前缀。表中 N 为索引大小，B≤100，复杂度忽略消息字节数及 Redis 编码细节；Hash/List/Set 常用操作通常为 O(1)，ZADD/ZREM 为 O(log N)。大消息/证据编码与释放 Hash 的成本随数据大小增加。
+基线为 10 个文件、267 行（`wc -l internal/rdb/lua/*.lua`）：9 个可执行脚本，加 1 个共享前缀。最终仍10个文件、261行：common 83行、scan 25行，其余行数不变。表中 N 为索引大小，B≤100，复杂度忽略消息字节数及 Redis 编码细节；Hash/List/Set 常用操作通常为 O(1)，ZADD/ZREM 为 O(log N)。大消息/证据编码与释放 Hash 的成本随数据大小增加。
 
 所有脚本的 KEYS 固定为 Ready、Members、Active、Lease、Retry、Archived、Completed、BadRefs；实际只读取/修改所需 Key，Task/Pending 从 ID/Group 派生。下表以缩写列明逻辑范围；主索引校验读取 Active/Lease/Retry/Archived/Completed，不能移至 Go，否则产生 TOCTOU。
 
@@ -63,12 +63,61 @@ GQM 用 embed 和脚本注册表；RR 起点来自单进程 pool 的原子计数
 
 测试不仅验证返回值，也验证 Hash/主索引、DUMP 不变、多进程守恒、真实网络故障和 kill/restart。保留真实时间语义测试中的有限 Sleep；不为缩短运行时间去掉真实15s重试等待、降低800槽或10进程竞争。测试使用显式隔离 Redis、按DB文件锁；并发测试与实际底层连接故障有不同验证目的，不删除重复外观的用例。
 
-依赖仅 UUID、go-redis 及其间接依赖；未发现需要新增或移除的依赖。未发现 Git 跟踪的二进制、coverage、pprof 或 trace；原始 JSON/TXT 是验收证据，保留。文本模式扫描未发现实际凭据或开发者绝对路径；ACL 测试口令仅一次性 fixture，私钥现场生成。历史文档中有临时路径，将清理不可复用的指引并保留事实。这不是完整 Git 历史的秘密扫描或法律权属鉴定。
+依赖仅 UUID、go-redis 及其间接依赖；未发现需要新增或移除的依赖。已读模块缓存许可证：google/uuid 为 BSD-3-Clause，go-redis 为 BSD-2-Clause，xxhash/v2 与 go.uber.org/atomic 为 MIT；未 vendor 或复制其代码，依赖许可证不等于 FairQ 自身许可证。未发现 Git 跟踪的二进制、coverage、pprof 或 trace；原始 JSON/TXT 是验收证据，保留。文本模式扫描未发现实际凭据或开发者绝对路径；ACL 测试口令仅一次性 fixture，私钥现场生成。历史文档中有临时路径，将清理不可复用的指引并保留事实。这不是完整 Git 历史的秘密扫描或法律权属鉴定。
 
 ## 验证与提交记录
 
 第一批：真实 Redis 8.0.2 复现 `tostring(9007199254740990)` 得到 `9.007199254741e+15`，直接整数响应保持 `9007199254740990`。新增 `TestLargeRetryIntegersRoundTrip` 在旧代码两个子用例均 FAIL；修复后 `FAIRQ_TEST_REDIS=127.0.0.1:16403 go test -race ./internal/rdb -count=1 -v` PASS，包耗时5.836s，包含48例故障矩阵与10进程×80槽领取。测试前缀不变，无数据迁移。
 
-后续简化、文档整理、最终回归及发布准备度将在本记录中更新。Git 提交采用独立可验收批次，以实际 `git log` 为准。
+第一批提交为 `c2c756e fix(rdb): preserve exact integers in Lua replies`；第二批提交为 `48eee86 refactor(rdb): remove redundant checks and candidate data`。文档/示例/最终记录作为第三批提交，精确哈希见 `git log`（不在提交内自引用尚未产生的哈希）。
 
 第二批：`FAIRQ_TEST_REDIS=127.0.0.1:16403 go test -race ./client ./internal/rdb ./server -count=1 -v` PASS：client 4.232s、rdb 8.721s、server 24.333s（包并行，不能相加作为总耗时）。覆盖入队并发/去重、候选读取与重验、10进程恢复/转发、坏队首推进、终态清理、指标、48例故障矩阵、Worker关闭及 kill/recover。Lua 文件数仍10，common 87→83行，scan 27→25行，总267→261行；每个正常到期候选减少3次脚本内部 Redis 调用，网络往返不变。公开 Go API 与依赖不变；仅 internal/rdb.Candidate 删除未使用的 State 字段。
+
+
+## 仓库整理结果
+
+- `docs/development-progress.md`、`docs/implementation-plan.md` 移至 `docs/history/`，注明历史背景而非当前操作指令，修复相对链接。没有删除历史故障分析或失败报告。
+- README 面向使用者重写：公平领取场景、安装现状、本地试用、可运行示例、默认参数、业务幂等、Redis要求、已知限制、测试与 License 状态。
+- 新增 `examples/basic/main.go` 和一个真实 Redis 集成测试：入队、Handler、Completed、Shutdown 闭环；测试使用隔离 DB6。实际执行构建出的程序并发送 SIGINT，退出码0，Active/Lease为空。
+- contracts 对齐实际 `pending_since` 生命周期、RESP整数协议和业务错误文本的保存边界；acceptance-report/acceptance/test-environment 指向当前审计并保留历史验证语义。v1.4 原文未改。
+- 删除重复的 `.gitignore` coverage 规则并覆盖常见测试二进制、profile、trace、日志；未发现应删除的已跟踪构建产物。没有为了文件数合并现有模块，也未删除关键测试。
+- 公开 Go API、Redis 数据格式、依赖及 go.mod/go.sum 均不变；仅内部候选响应移除未使用的 State。没有数据迁移。按本次补充要求不添加 CI。
+- 无生产凭据命中；ACL 的固定口令是测试 fixture，TLS私钥仅在临时目录生成。删除历史文档中无法供他人复用的本机临时路径，保留对应事实。未重写 Git 历史，完整历史秘密扫描未执行。
+
+## 最终本地验收
+
+环境：macOS arm64、Go 1.27.1、Redis 8.0.2（TLS）；本次新建专用 loopback Redis `127.0.0.1:16403`、768MiB、noeviction。常规 fixture 不持久化；基础设施用例各自创建临时实例，AOF测试使用 always。测试结束关闭本次专用实例，未操作既有 Redis。
+
+命令前缀：`FAIRQ_TEST_REDIS=127.0.0.1:16403 FAIRQ_REDIS_SERVER=/path/to/redis-server`，后者指向本次使用的 TLS Redis 8.0.2。原始回归和关键输出见 [release-regression-20261014.txt](reports/release-regression-20261014.txt)。
+
+| 命令/检查 | 结果 | 耗时与证据 |
+|---|---|---|
+| 新增数值用例，旧代码 | FAIL（预期复现） | rdb 1.294s；两种转换路径都在领取后解析失败 |
+| `go test -race ./internal/rdb -count=1 -v`，第一批 | PASS | rdb 5.836s；含新用例及48例变更脚本故障矩阵 |
+| `go test -race ./client ./internal/rdb ./server -count=1 -v`，第二批 | PASS | 三包4.232/8.721/24.333s，包并行 |
+| `go test ./... -count=1` | PASS | 最长包 tests/acceptance 30.248s；本轮未单独采集总壁钟 |
+| `go test -race ./... -count=1 -v` | PASS | 总壁钟30.92s；rdb 8.520s、server 24.629s、acceptance 30.313s |
+| `go vet ./...` | PASS | 0.26s |
+| `go mod verify` | PASS | 0.11s，all modules verified |
+| `go mod tidy -diff` | PASS | 0.04s，无差异、无依赖变更 |
+| `gofmt -l`、`git diff --check`、本地 Markdown 链接 | PASS | 无格式或本地目标缺失 |
+| 8个 Markdown 外链 HEAD | PASS | 均HTTP200；这是链接存活检查，不是全站内容验证 |
+| 新示例实际进程运行、SIGINT退出、Redis状态断言 | PASS | 构建与断言总工具耗时1.111s；真实完成并释放所有权 |
+| codebase-memory 图索引/覆盖 | BLOCKED | daemon coordination失败，全部证据路径覆盖请求失败；已用直接源码核验 |
+| 60分钟 P01、10万任务性能重测 | NOT_RUN | 未用短测冒充长稳；没有从少3次内部命令推断吞吐提升 |
+| 生产目标环境/业务灰度 | NOT_RUN | 无生产操作 |
+
+基础设施本轮 race 证据：AOF 95个确认Hash保留，RTO112.629ms；RDB恢复95个Hash，RTO109.317ms；Sentinel先确认副本水位后切换，100个确认任务保留，RTO1.711s；存活Worker跨重启恢复16.666s（包含真实15s+抖动退避）。这些是本机受控演练，不能推断生产零RPO。原有长稳 FAIL、P01复验 NOT_RUN 保持。
+
+最终还把边界测试的 MaxRetry 限制为当前 Go int 与 Lua 精确整数的交集，保证测试自身可在32位编译；64位继续验证 2^53−1 边界，没有降低该用例在本机的断言。最终定向 race 和 Linux/386 编译结果见回归记录；32位仅编译，未声称运行验证。
+
+## 发布准备度
+
+| 问题 | 结论 |
+|---|---|
+| 可以公开 GitHub 仓库吗？ | 可以作为明确标注未发布、未获生产认证的实验性源码供评审；当前未配置 remote，也没有推送。要称为可复用的开源发行，先由维护者确定许可证与版权声明。 |
+| 可以发布第一个版本吗？ | 暂不建议发布正式版本。先确定公开 module 路径、同步 imports/示例并验证外部项目安装，补 LICENSE/版权与来源核查。预发布版本也需要先解决这些发布元数据。 |
+| 适合生产使用吗？ | 尚不能给出生产就绪结论：历史 P01失败、完整复验未执行，目标部署环境及业务幂等/灰度未验收。 |
+| 仍阻塞什么？ | 正式开源发行：许可证/版权声明与公开模块路径。生产就绪：P01完整门禁、实际目标环境及业务灰度。没有以文档修改掩盖这些缺口。CI按要求不做，不列为本次阻塞。 |
+
+本次未新增功能框架、锁、选主或依赖，未更改验收阈值，未Push/Force Push/改写历史。图服务故障、未测试Go最低版本/其它Redis版本、未做完整历史秘密及权属核查均是本次证据范围的边界。

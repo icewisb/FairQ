@@ -1,10 +1,10 @@
 # FairQ v1.4 验收报告（进行中）
 
-日期：2026-10-14。唯一行为基线为 v1.4；矩阵见 [acceptance.md](acceptance.md)。阶段0–6已验收，阶段7的故障、安全、隔离性能已通过，**首轮长稳因goroutine峰值检查失败，整体生产门禁尚未关闭**。没有已确认未修复的P0架构问题。用户已要求不再运行一小时长测，后续只做短时定向验证；不放宽原验收标准。
+日期：2026-10-14。当前发布审计见 [release-audit.md](release-audit.md)，以下保留此前验收结果，新增本地回归不替代 P01。唯一行为基线为 v1.4；矩阵见 [acceptance.md](acceptance.md)。阶段0–6已验收，阶段7的故障、安全、隔离性能已通过，**首轮长稳因goroutine峰值检查失败，整体生产门禁尚未关闭**。没有已确认未修复的P0架构问题。本次不重跑一小时长测；不放宽原验收标准。
 
 ## 实测环境
 
-Apple M4 Pro，48GiB内存，macOS arm64，Go1.27.1；Redis8.0.2官方源码、TLS支持。单机loopback网络；Redis独立进程，maxmemory=768MiB、noeviction，长稳/性能AOF everysec。基础设施测试为一次性loopback Redis/Sentinel、AOF always；明确区分各配置的持久性边界。代码提交与功能对应见 [development-progress](development-progress.md)。
+Apple M4 Pro，48GiB内存，macOS arm64，Go1.27.1；Redis8.0.2官方源码、TLS支持。单机loopback网络；Redis独立进程，maxmemory=768MiB、noeviction，长稳/性能AOF everysec。基础设施测试为一次性loopback Redis/Sentinel、AOF always；明确区分各配置的持久性边界。代码提交与功能对应见 [历史开发记录](history/development-progress.md)。
 
 本机结果证明实现和该环境下的性能；目标机房、生产TLS/ACL配置、网络故障模型、时钟同步和业务幂等须由上线负责人在实际环境再次验收。这些外部操作本次未执行，不视作通过。
 
@@ -35,7 +35,7 @@ P01整体失败：Worker 5在约2310s样本中goroutine由167升至299，前后�
 
 补充[短时诊断记录](reports/goroutine-diagnostic-20261014.json)：15秒/8秒/8秒的10进程×80槽测试，包含加速连接空闲淘汰和加密采样；28800/16200/7400任务分别全部排空，无重复或索引异常，未采到超过199的堆栈。此结果没有复现首轮峰值，不能关闭P01；生产代码及验收断言未修改。
 
-最新[goroutine 专项记录](reports/p01-goroutine-20261014.md)：已复现并修复负载工具在 GC 期间把已退出协程计入峰值的统计缺陷，增加真实 GC 与 80 个阻塞协程回归，原阈值及生产代码不变。历史 299 无当时堆栈，不能追溯确定其全部来源。用户随后要求清理并提交；10 分钟稳定性验证未启动，60 分钟完整复验保持 NOT_RUN / PENDING。
+最新[goroutine 专项记录](reports/p01-goroutine-20261014.md)：已复现并修复负载工具在 GC 期间把已退出协程计入峰值的统计缺陷，增加真实 GC 与 80 个阻塞协程回归，原阈值及生产代码不变。历史 299 无当时堆栈，不能追溯确定其全部来源。此前清理并提交后，10 分钟稳定性验证未启动，60 分钟完整复验保持 NOT_RUN / PENDING。
 
 ## 待完成
 

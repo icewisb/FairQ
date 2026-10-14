@@ -1,6 +1,8 @@
+> 历史归档：保留当时的计划、证据与交接上下文，不作为当前操作指令。当前事实见 [发布审计](../release-audit.md) 和 [验收报告](../acceptance-report.md)。
+
 # FairQ 分阶段实施计划
 
-唯一基线：[v1.4](fairq-final-technical-design-v1.4.md)。契约见 [contracts](contracts.md)，验收ID见 [acceptance](acceptance.md)，当前事实见 [development-progress](development-progress.md)。所有目录为拟实现范围，不预建空抽象。
+唯一基线：[v1.4](../fairq-final-technical-design-v1.4.md)。契约见 [contracts](../contracts.md)，验收ID见 [acceptance](../acceptance.md)，当前事实见 [development-progress](development-progress.md)。所有目录为拟实现范围，不预建空抽象。
 
 | 阶段 | 依赖 | 目标/关键实现 | 主要文件 | 测试/通过门禁 |
 |---|---|---|---|---|

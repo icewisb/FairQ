@@ -1,6 +1,6 @@
 # FairQ v1.4 验收清单
 
-基线：[v1.4](fairq-final-technical-design-v1.4.md)；编码约定：[contracts](contracts.md)。`未执行`不等于通过。每项记录命令、Git commit、Go/Redis版本、环境、实际结果和原始报告位置。阶段必须验收通过后才推进。
+基线：[v1.4](fairq-final-technical-design-v1.4.md)；编码约定：[contracts](contracts.md)。`未执行`不等于通过。每项记录命令、Git commit、Go/Redis版本、环境、实际结果和原始报告位置。发布门禁以实际验收证据为准。
 
 ## 阶段0文档验收
 
@@ -67,4 +67,4 @@
 
 单元测试用Clock/RNG验证调度；Lua测试以Redis TIME为准。长稳不可缩短后冒充通过，硬件不满足阈值要记录失败并取得设计批准，不能静默改标准。基础测试环境不可用时明确失败，不使用t.Skip掩盖必需项。
 
-阶段0验收结果：文档检查通过；当时运行时矩阵待实现/待执行。当前阶段0–6已验收，阶段7结果见 development-progress.md 和 acceptance-report.md；P01首轮失败，用户已要求后续不再运行一小时长测，不能将短跑记作P01通过。
+阶段0验收结果：文档检查通过；当时运行时矩阵待实现/待执行。当前阶段0–6已验收，阶段7结果见 [验收报告](acceptance-report.md)，本次审计见 [release-audit.md](release-audit.md)；P01首轮失败，用户已要求后续不再运行一小时长测，不能将短跑记作P01通过。

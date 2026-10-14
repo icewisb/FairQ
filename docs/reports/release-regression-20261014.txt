@@ -1,0 +1,460 @@
+FairQ release audit — 2026-10-14 Asia/Shanghai
+Base: d77d399; runtime fixes: c2c756e, 48eee86.
+Environment: Go 1.27.1 darwin/arm64; Redis 8.0.2 with TLS.
+FAIRQ_TEST_REDIS=127.0.0.1:16403
+FAIRQ_REDIS_SERVER=/path/to/the/Redis-8.0.2/redis-server
+All tests use disposable local instances. No 60-minute soak or production run.
+
+Expected red regression before fix:
+TestLargeRetryIntegersRoundTrip/recover=false FAIL
+TestLargeRetryIntegersRoundTrip/recover=true FAIL
+claim returned fairq dequeue: INTERNAL after state transition
+Package time: 1.294s
+Redis EVAL: tostring(9007199254740990) = 9.007199254741e+15; direct integer = 9007199254740990
+
+
+COMMAND: go test ./... -count=1
+RESULT: PASS
+?   	fairq	[no test files]
+ok  	fairq/client	1.874s
+ok  	fairq/examples/basic	2.349s
+ok  	fairq/inspector	2.920s
+ok  	fairq/internal/base	3.271s
+?   	fairq/internal/clock	[no test files]
+ok  	fairq/internal/rdb	6.335s
+?   	fairq/internal/testutil	[no test files]
+ok  	fairq/server	23.036s
+ok  	fairq/tests/acceptance	30.248s
+ok  	fairq/tools/benchmark	3.756s
+ok  	fairq/tools/loadtest	5.876s
+
+
+COMMAND: /usr/bin/time -p go test -race ./... -count=1 -v
+RESULT: PASS
+?   	fairq	[no test files]
+=== RUN   TestEnqueueConcurrentAndQuery
+--- PASS: TestEnqueueConcurrentAndQuery (0.02s)
+=== RUN   TestValidationAndUnknownID
+--- PASS: TestValidationAndUnknownID (0.00s)
+=== RUN   TestRejectClusterOptions
+--- PASS: TestRejectClusterOptions (0.00s)
+=== RUN   TestTaskIDDedupEndsWhenHashIsDeleted
+--- PASS: TestTaskIDDedupEndsWhenHashIsDeleted (0.00s)
+=== RUN   TestMetrics
+--- PASS: TestMetrics (0.00s)
+PASS
+ok  	fairq/client	2.336s
+=== RUN   TestExampleCompletesAndShutsDown
+handled task 768e31a4-26b4-4113-9293-947fccbf4ecc
+--- PASS: TestExampleCompletesAndShutsDown (0.01s)
+PASS
+ok  	fairq/examples/basic	3.752s
+=== RUN   TestCheckInvalidIndexScores
+=== RUN   TestCheckInvalidIndexScores/lease
+=== RUN   TestCheckInvalidIndexScores/lease/+Inf
+=== RUN   TestCheckInvalidIndexScores/lease/-Inf
+=== RUN   TestCheckInvalidIndexScores/lease/-1
+=== RUN   TestCheckInvalidIndexScores/lease/0.5
+=== RUN   TestCheckInvalidIndexScores/lease/9.007199254740992e+15
+=== RUN   TestCheckInvalidIndexScores/lease/0
+=== RUN   TestCheckInvalidIndexScores/lease/9.007199254740991e+15
+=== RUN   TestCheckInvalidIndexScores/retry
+=== RUN   TestCheckInvalidIndexScores/retry/+Inf
+=== RUN   TestCheckInvalidIndexScores/retry/-Inf
+=== RUN   TestCheckInvalidIndexScores/retry/-1
+=== RUN   TestCheckInvalidIndexScores/retry/0.5
+=== RUN   TestCheckInvalidIndexScores/retry/9.007199254740992e+15
+=== RUN   TestCheckInvalidIndexScores/retry/0
+=== RUN   TestCheckInvalidIndexScores/retry/9.007199254740991e+15
+=== RUN   TestCheckInvalidIndexScores/archived
+=== RUN   TestCheckInvalidIndexScores/archived/+Inf
+=== RUN   TestCheckInvalidIndexScores/archived/-Inf
+=== RUN   TestCheckInvalidIndexScores/archived/-1
+=== RUN   TestCheckInvalidIndexScores/archived/0.5
+=== RUN   TestCheckInvalidIndexScores/archived/9.007199254740992e+15
+=== RUN   TestCheckInvalidIndexScores/archived/0
+=== RUN   TestCheckInvalidIndexScores/archived/9.007199254740991e+15
+=== RUN   TestCheckInvalidIndexScores/completed
+=== RUN   TestCheckInvalidIndexScores/completed/+Inf
+=== RUN   TestCheckInvalidIndexScores/completed/-Inf
+=== RUN   TestCheckInvalidIndexScores/completed/-1
+=== RUN   TestCheckInvalidIndexScores/completed/0.5
+=== RUN   TestCheckInvalidIndexScores/completed/9.007199254740992e+15
+=== RUN   TestCheckInvalidIndexScores/completed/0
+=== RUN   TestCheckInvalidIndexScores/completed/9.007199254740991e+15
+--- PASS: TestCheckInvalidIndexScores (0.07s)
+    --- PASS: TestCheckInvalidIndexScores/lease (0.02s)
+        --- PASS: TestCheckInvalidIndexScores/lease/+Inf (0.00s)
+        --- PASS: TestCheckInvalidIndexScores/lease/-Inf (0.00s)
+        --- PASS: TestCheckInvalidIndexScores/lease/-1 (0.00s)
+        --- PASS: TestCheckInvalidIndexScores/lease/0.5 (0.00s)
+        --- PASS: TestCheckInvalidIndexScores/lease/9.007199254740992e+15 (0.00s)
+        --- PASS: TestCheckInvalidIndexScores/lease/0 (0.00s)
+        --- PASS: TestCheckInvalidIndexScores/lease/9.007199254740991e+15 (0.00s)
+    --- PASS: TestCheckInvalidIndexScores/retry (0.02s)
+        --- PASS: TestCheckInvalidIndexScores/retry/+Inf (0.00s)
+        --- PASS: TestCheckInvalidIndexScores/retry/-Inf (0.00s)
+        --- PASS: TestCheckInvalidIndexScores/retry/-1 (0.00s)
+        --- PASS: TestCheckInvalidIndexScores/retry/0.5 (0.00s)
+        --- PASS: TestCheckInvalidIndexScores/retry/9.007199254740992e+15 (0.00s)
+        --- PASS: TestCheckInvalidIndexScores/retry/0 (0.00s)
+        --- PASS: TestCheckInvalidIndexScores/retry/9.007199254740991e+15 (0.00s)
+    --- PASS: TestCheckInvalidIndexScores/archived (0.01s)
+        --- PASS: TestCheckInvalidIndexScores/archived/+Inf (0.00s)
+        --- PASS: TestCheckInvalidIndexScores/archived/-Inf (0.00s)
+        --- PASS: TestCheckInvalidIndexScores/archived/-1 (0.00s)
+        --- PASS: TestCheckInvalidIndexScores/archived/0.5 (0.00s)
+        --- PASS: TestCheckInvalidIndexScores/archived/9.007199254740992e+15 (0.00s)
+        --- PASS: TestCheckInvalidIndexScores/archived/0 (0.00s)
+        --- PASS: TestCheckInvalidIndexScores/archived/9.007199254740991e+15 (0.00s)
+    --- PASS: TestCheckInvalidIndexScores/completed (0.01s)
+        --- PASS: TestCheckInvalidIndexScores/completed/+Inf (0.00s)
+        --- PASS: TestCheckInvalidIndexScores/completed/-Inf (0.00s)
+        --- PASS: TestCheckInvalidIndexScores/completed/-1 (0.00s)
+        --- PASS: TestCheckInvalidIndexScores/completed/0.5 (0.00s)
+        --- PASS: TestCheckInvalidIndexScores/completed/9.007199254740992e+15 (0.00s)
+        --- PASS: TestCheckInvalidIndexScores/completed/0 (0.00s)
+        --- PASS: TestCheckInvalidIndexScores/completed/9.007199254740991e+15 (0.00s)
+=== RUN   TestCheckInvalidNumericFields
+=== RUN   TestCheckInvalidNumericFields/retry_count
+=== RUN   TestCheckInvalidNumericFields/max_retry
+=== RUN   TestCheckInvalidNumericFields/timeout_ms
+=== RUN   TestCheckInvalidNumericFields/retention_ms
+=== RUN   TestCheckInvalidNumericFields/enqueued_at
+=== RUN   TestCheckInvalidNumericFields/pending_since
+--- PASS: TestCheckInvalidNumericFields (0.05s)
+    --- PASS: TestCheckInvalidNumericFields/retry_count (0.01s)
+    --- PASS: TestCheckInvalidNumericFields/max_retry (0.01s)
+    --- PASS: TestCheckInvalidNumericFields/timeout_ms (0.01s)
+    --- PASS: TestCheckInvalidNumericFields/retention_ms (0.01s)
+    --- PASS: TestCheckInvalidNumericFields/enqueued_at (0.01s)
+    --- PASS: TestCheckInvalidNumericFields/pending_since (0.01s)
+=== RUN   TestInspectorReadOnlyAndCoverage
+--- PASS: TestInspectorReadOnlyAndCoverage (0.06s)
+PASS
+ok  	fairq/inspector	2.973s
+=== RUN   TestBackoff
+--- PASS: TestBackoff (0.00s)
+PASS
+ok  	fairq/internal/base	3.245s
+?   	fairq/internal/clock	[no test files]
+=== RUN   TestRetentionAndSafeCleaner
+--- PASS: TestRetentionAndSafeCleaner (0.00s)
+=== RUN   TestArchiveThresholdDoesNotTrim
+--- PASS: TestArchiveThresholdDoesNotTrim (0.01s)
+=== RUN   TestArchivedNinetyDayRetention
+--- PASS: TestArchivedNinetyDayRetention (0.00s)
+=== RUN   TestRoundRobinFIFO
+--- PASS: TestRoundRobinFIFO (1.96s)
+=== RUN   TestCorruptReference
+--- PASS: TestCorruptReference (0.00s)
+=== RUN   TestEvidenceFailureAndThreshold
+--- PASS: TestEvidenceFailureAndThreshold (0.01s)
+=== RUN   TestClaimProcess
+--- PASS: TestClaimProcess (0.00s)
+=== RUN   TestMultiProcessClaims
+--- PASS: TestMultiProcessClaims (1.23s)
+=== RUN   TestCorruptDurationRejectedBeforeWrite
+=== RUN   TestCorruptDurationRejectedBeforeWrite/dequeue/timeout_ms/9223372036855
+=== RUN   TestCorruptDurationRejectedBeforeWrite/dequeue/timeout_ms/9007199254740991
+=== RUN   TestCorruptDurationRejectedBeforeWrite/dequeue/retention_ms/9223372036855
+=== RUN   TestCorruptDurationRejectedBeforeWrite/dequeue/retention_ms/9007199254740991
+=== RUN   TestCorruptDurationRejectedBeforeWrite/done/retention_ms/9223372036855
+=== RUN   TestCorruptDurationRejectedBeforeWrite/done/retention_ms/9007199254740991
+--- PASS: TestCorruptDurationRejectedBeforeWrite (0.02s)
+    --- PASS: TestCorruptDurationRejectedBeforeWrite/dequeue/timeout_ms/9223372036855 (0.00s)
+    --- PASS: TestCorruptDurationRejectedBeforeWrite/dequeue/timeout_ms/9007199254740991 (0.00s)
+    --- PASS: TestCorruptDurationRejectedBeforeWrite/dequeue/retention_ms/9223372036855 (0.00s)
+    --- PASS: TestCorruptDurationRejectedBeforeWrite/dequeue/retention_ms/9007199254740991 (0.00s)
+    --- PASS: TestCorruptDurationRejectedBeforeWrite/done/retention_ms/9223372036855 (0.00s)
+    --- PASS: TestCorruptDurationRejectedBeforeWrite/done/retention_ms/9007199254740991 (0.00s)
+=== RUN   TestMaximumDurationRoundTrip
+--- PASS: TestMaximumDurationRoundTrip (0.00s)
+=== RUN   TestTransitionFaultMatrix
+=== RUN   TestTransitionFaultMatrix/enqueue/disconnect-before
+=== RUN   TestTransitionFaultMatrix/enqueue/disconnect-after
+=== RUN   TestTransitionFaultMatrix/enqueue/timeout-after
+=== RUN   TestTransitionFaultMatrix/enqueue/lua-before
+=== RUN   TestTransitionFaultMatrix/enqueue/lua-partial
+=== RUN   TestTransitionFaultMatrix/enqueue/wrong-type
+=== RUN   TestTransitionFaultMatrix/dequeue/disconnect-before
+=== RUN   TestTransitionFaultMatrix/dequeue/disconnect-after
+=== RUN   TestTransitionFaultMatrix/dequeue/timeout-after
+=== RUN   TestTransitionFaultMatrix/dequeue/lua-before
+=== RUN   TestTransitionFaultMatrix/dequeue/lua-partial
+=== RUN   TestTransitionFaultMatrix/dequeue/wrong-type
+=== RUN   TestTransitionFaultMatrix/heartbeat/disconnect-before
+=== RUN   TestTransitionFaultMatrix/heartbeat/disconnect-after
+=== RUN   TestTransitionFaultMatrix/heartbeat/timeout-after
+=== RUN   TestTransitionFaultMatrix/heartbeat/lua-before
+=== RUN   TestTransitionFaultMatrix/heartbeat/lua-partial
+=== RUN   TestTransitionFaultMatrix/heartbeat/wrong-type
+=== RUN   TestTransitionFaultMatrix/done/disconnect-before
+=== RUN   TestTransitionFaultMatrix/done/disconnect-after
+=== RUN   TestTransitionFaultMatrix/done/timeout-after
+=== RUN   TestTransitionFaultMatrix/done/lua-before
+=== RUN   TestTransitionFaultMatrix/done/lua-partial
+=== RUN   TestTransitionFaultMatrix/done/wrong-type
+=== RUN   TestTransitionFaultMatrix/retry/disconnect-before
+=== RUN   TestTransitionFaultMatrix/retry/disconnect-after
+=== RUN   TestTransitionFaultMatrix/retry/timeout-after
+=== RUN   TestTransitionFaultMatrix/retry/lua-before
+=== RUN   TestTransitionFaultMatrix/retry/lua-partial
+=== RUN   TestTransitionFaultMatrix/retry/wrong-type
+=== RUN   TestTransitionFaultMatrix/forward/disconnect-before
+=== RUN   TestTransitionFaultMatrix/forward/disconnect-after
+=== RUN   TestTransitionFaultMatrix/forward/timeout-after
+=== RUN   TestTransitionFaultMatrix/forward/lua-before
+=== RUN   TestTransitionFaultMatrix/forward/lua-partial
+=== RUN   TestTransitionFaultMatrix/forward/wrong-type
+=== RUN   TestTransitionFaultMatrix/recover/disconnect-before
+=== RUN   TestTransitionFaultMatrix/recover/disconnect-after
+=== RUN   TestTransitionFaultMatrix/recover/timeout-after
+=== RUN   TestTransitionFaultMatrix/recover/lua-before
+=== RUN   TestTransitionFaultMatrix/recover/lua-partial
+=== RUN   TestTransitionFaultMatrix/recover/wrong-type
+=== RUN   TestTransitionFaultMatrix/clean/disconnect-before
+=== RUN   TestTransitionFaultMatrix/clean/disconnect-after
+=== RUN   TestTransitionFaultMatrix/clean/timeout-after
+=== RUN   TestTransitionFaultMatrix/clean/lua-before
+=== RUN   TestTransitionFaultMatrix/clean/lua-partial
+=== RUN   TestTransitionFaultMatrix/clean/wrong-type
+--- PASS: TestTransitionFaultMatrix (1.03s)
+    --- PASS: TestTransitionFaultMatrix/enqueue/disconnect-before (0.01s)
+    --- PASS: TestTransitionFaultMatrix/enqueue/disconnect-after (0.01s)
+    --- PASS: TestTransitionFaultMatrix/enqueue/timeout-after (0.11s)
+    --- PASS: TestTransitionFaultMatrix/enqueue/lua-before (0.01s)
+    --- PASS: TestTransitionFaultMatrix/enqueue/lua-partial (0.01s)
+    --- PASS: TestTransitionFaultMatrix/enqueue/wrong-type (0.00s)
+    --- PASS: TestTransitionFaultMatrix/dequeue/disconnect-before (0.01s)
+    --- PASS: TestTransitionFaultMatrix/dequeue/disconnect-after (0.00s)
+    --- PASS: TestTransitionFaultMatrix/dequeue/timeout-after (0.11s)
+    --- PASS: TestTransitionFaultMatrix/dequeue/lua-before (0.01s)
+    --- PASS: TestTransitionFaultMatrix/dequeue/lua-partial (0.01s)
+    --- PASS: TestTransitionFaultMatrix/dequeue/wrong-type (0.00s)
+    --- PASS: TestTransitionFaultMatrix/heartbeat/disconnect-before (0.01s)
+    --- PASS: TestTransitionFaultMatrix/heartbeat/disconnect-after (0.01s)
+    --- PASS: TestTransitionFaultMatrix/heartbeat/timeout-after (0.10s)
+    --- PASS: TestTransitionFaultMatrix/heartbeat/lua-before (0.00s)
+    --- PASS: TestTransitionFaultMatrix/heartbeat/lua-partial (0.00s)
+    --- PASS: TestTransitionFaultMatrix/heartbeat/wrong-type (0.00s)
+    --- PASS: TestTransitionFaultMatrix/done/disconnect-before (0.00s)
+    --- PASS: TestTransitionFaultMatrix/done/disconnect-after (0.00s)
+    --- PASS: TestTransitionFaultMatrix/done/timeout-after (0.10s)
+    --- PASS: TestTransitionFaultMatrix/done/lua-before (0.00s)
+    --- PASS: TestTransitionFaultMatrix/done/lua-partial (0.00s)
+    --- PASS: TestTransitionFaultMatrix/done/wrong-type (0.00s)
+    --- PASS: TestTransitionFaultMatrix/retry/disconnect-before (0.00s)
+    --- PASS: TestTransitionFaultMatrix/retry/disconnect-after (0.00s)
+    --- PASS: TestTransitionFaultMatrix/retry/timeout-after (0.10s)
+    --- PASS: TestTransitionFaultMatrix/retry/lua-before (0.00s)
+    --- PASS: TestTransitionFaultMatrix/retry/lua-partial (0.00s)
+    --- PASS: TestTransitionFaultMatrix/retry/wrong-type (0.00s)
+    --- PASS: TestTransitionFaultMatrix/forward/disconnect-before (0.00s)
+    --- PASS: TestTransitionFaultMatrix/forward/disconnect-after (0.00s)
+    --- PASS: TestTransitionFaultMatrix/forward/timeout-after (0.10s)
+    --- PASS: TestTransitionFaultMatrix/forward/lua-before (0.01s)
+    --- PASS: TestTransitionFaultMatrix/forward/lua-partial (0.00s)
+    --- PASS: TestTransitionFaultMatrix/forward/wrong-type (0.00s)
+    --- PASS: TestTransitionFaultMatrix/recover/disconnect-before (0.00s)
+    --- PASS: TestTransitionFaultMatrix/recover/disconnect-after (0.00s)
+    --- PASS: TestTransitionFaultMatrix/recover/timeout-after (0.11s)
+    --- PASS: TestTransitionFaultMatrix/recover/lua-before (0.01s)
+    --- PASS: TestTransitionFaultMatrix/recover/lua-partial (0.01s)
+    --- PASS: TestTransitionFaultMatrix/recover/wrong-type (0.00s)
+    --- PASS: TestTransitionFaultMatrix/clean/disconnect-before (0.01s)
+    --- PASS: TestTransitionFaultMatrix/clean/disconnect-after (0.00s)
+    --- PASS: TestTransitionFaultMatrix/clean/timeout-after (0.11s)
+    --- PASS: TestTransitionFaultMatrix/clean/lua-before (0.01s)
+    --- PASS: TestTransitionFaultMatrix/clean/lua-partial (0.01s)
+    --- PASS: TestTransitionFaultMatrix/clean/wrong-type (0.00s)
+=== RUN   TestLargeRetryIntegersRoundTrip
+=== RUN   TestLargeRetryIntegersRoundTrip/recover=false
+=== RUN   TestLargeRetryIntegersRoundTrip/recover=true
+--- PASS: TestLargeRetryIntegersRoundTrip (0.01s)
+    --- PASS: TestLargeRetryIntegersRoundTrip/recover=false (0.00s)
+    --- PASS: TestLargeRetryIntegersRoundTrip/recover=true (0.00s)
+=== RUN   TestOwnershipAndServerTime
+--- PASS: TestOwnershipAndServerTime (0.00s)
+=== RUN   TestExpiredCannotFinishOrRenew
+--- PASS: TestExpiredCannotFinishOrRenew (0.00s)
+=== RUN   TestMissingIndexAndNewAttemptProtection
+--- PASS: TestMissingIndexAndNewAttemptProtection (0.00s)
+=== RUN   TestRetryCountsAndForwardFIFO
+--- PASS: TestRetryCountsAndForwardFIFO (0.02s)
+=== RUN   TestRecoverChecksSnapshotAndRecoveryTime
+--- PASS: TestRecoverChecksSnapshotAndRecoveryTime (0.00s)
+=== RUN   TestOrphanLeaseAndDecodeArchive
+--- PASS: TestOrphanLeaseAndDecodeArchive (0.00s)
+=== RUN   TestThreeGroupsHundredEach
+--- PASS: TestThreeGroupsHundredEach (0.05s)
+=== RUN   TestDynamicGroupsAndUnknownCorruption
+--- PASS: TestDynamicGroupsAndUnknownCorruption (0.00s)
+PASS
+ok  	fairq/internal/rdb	8.520s
+?   	fairq/internal/testutil	[no test files]
+=== RUN   TestRetentionThroughPublicClientAndCleaner
+--- PASS: TestRetentionThroughPublicClientAndCleaner (0.21s)
+=== RUN   TestCleanerDoesNotStarveCompletedBehindArchived
+--- PASS: TestCleanerDoesNotStarveCompletedBehindArchived (0.02s)
+=== RUN   TestMaintenanceChild
+--- PASS: TestMaintenanceChild (0.00s)
+=== RUN   TestTenProcessMaintenance
+    maintenance_test.go:83: lease STATS:980/18
+    maintenance_test.go:83: lease STATS:979/55
+    maintenance_test.go:83: lease STATS:979/14
+    maintenance_test.go:83: lease STATS:978/89
+    maintenance_test.go:83: lease STATS:980/170
+    maintenance_test.go:83: lease STATS:982/142
+    maintenance_test.go:83: lease STATS:979/264
+    maintenance_test.go:83: lease STATS:983/160
+    maintenance_test.go:83: lease STATS:979/45
+    maintenance_test.go:83: lease STATS:982/43
+    maintenance_test.go:83: retry STATS:981/261
+    maintenance_test.go:83: retry STATS:980/1
+    maintenance_test.go:83: retry STATS:981/179
+    maintenance_test.go:83: retry STATS:981/160
+    maintenance_test.go:83: retry STATS:981/38
+    maintenance_test.go:83: retry STATS:981/41
+    maintenance_test.go:83: retry STATS:981/6
+    maintenance_test.go:83: retry STATS:981/84
+    maintenance_test.go:83: retry STATS:981/24
+    maintenance_test.go:83: retry STATS:981/206
+--- PASS: TestTenProcessMaintenance (2.91s)
+=== RUN   TestBlockedHeadDoesNotStarveRecovery
+--- PASS: TestBlockedHeadDoesNotStarveRecovery (0.23s)
+=== RUN   TestWorkerLifecycle
+--- PASS: TestWorkerLifecycle (0.06s)
+=== RUN   TestFailureTimeoutPanicAndDecode
+--- PASS: TestFailureTimeoutPanicAndDecode (0.02s)
+=== RUN   TestShutdownKeepsHeartbeats
+--- PASS: TestShutdownKeepsHeartbeats (0.40s)
+=== RUN   TestShutdownTimeoutLeavesOwnership
+--- PASS: TestShutdownTimeoutLeavesOwnership (0.25s)
+=== RUN   TestLostOwnershipAndConnectionCancel
+=== RUN   TestLostOwnershipAndConnectionCancel/token
+=== RUN   TestLostOwnershipAndConnectionCancel/network
+--- PASS: TestLostOwnershipAndConnectionCancel (0.36s)
+    --- PASS: TestLostOwnershipAndConnectionCancel/token (0.05s)
+    --- PASS: TestLostOwnershipAndConnectionCancel/network (0.30s)
+=== RUN   TestCorruptionWaitReallyStopsDequeue
+--- PASS: TestCorruptionWaitReallyStopsDequeue (0.07s)
+=== RUN   TestLateRenewalCannotRevive
+--- PASS: TestLateRenewalCannotRevive (0.00s)
+=== RUN   TestConfigRejectsUnsafeTiming
+--- PASS: TestConfigRejectsUnsafeTiming (0.00s)
+=== RUN   TestKilledWorkerChild
+--- PASS: TestKilledWorkerChild (0.00s)
+=== RUN   TestKillWorkerRecovery
+--- PASS: TestKillWorkerRecovery (15.40s)
+=== RUN   TestRunCancellationPreservesGracefulDrain
+--- PASS: TestRunCancellationPreservesGracefulDrain (0.11s)
+PASS
+ok  	fairq/server	24.629s
+=== RUN   TestAOFRestartAndBackupRestore
+    infrastructure_test.go:177: AOF kill/restart: confirmed_hashes=95 lost=0 observed_RPO_tasks=0 RTO=112.628792ms appendfsync=always
+    infrastructure_test.go:192: RDB backup restore: snapshot_hashes=95 lost=0 RTO=109.317458ms bytes=20657
+--- PASS: TestAOFRestartAndBackupRestore (0.85s)
+=== RUN   TestSentinelFailover
+redis: 2026/10/14 18:25:48 sentinel.go:959: sentinel: selected addr=127.0.0.1:57339 masterAddr=127.0.0.1:57315
+redis: 2026/10/14 18:25:48 sentinel.go:1109: sentinel: new master="fairq-test" addr="127.0.0.1:57315"
+redis: 2026/10/14 18:25:53 pool.go:717: redis: connection pool: failed to dial after 5 attempts: dial tcp 127.0.0.1:57315: connect: connection refused
+redis: 2026/10/14 18:25:53 pool.go:717: redis: connection pool: failed to dial after 5 attempts: dial tcp 127.0.0.1:57315: connect: connection refused
+redis: 2026/10/14 18:25:53 pool.go:717: redis: connection pool: failed to dial after 5 attempts: dial tcp 127.0.0.1:57315: connect: connection refused
+redis: 2026/10/14 18:25:54 sentinel.go:1109: sentinel: new master="fairq-test" addr="127.0.0.1:57319"
+redis: 2026/10/14 18:25:54 sentinel.go:959: sentinel: selected addr=127.0.0.1:58148 masterAddr=127.0.0.1:57315
+redis: 2026/10/14 18:25:54 sentinel.go:1109: sentinel: new master="fairq-test" addr="127.0.0.1:57315"
+redis: 2026/10/14 18:25:54 sentinel.go:1109: sentinel: new master="fairq-test" addr="127.0.0.1:57319"
+    infrastructure_test.go:285: Sentinel failover: confirmed=100 lost=0 observed_RPO_tasks=0 RTO=1.710566958s replica watermark=99 verified; async production replication can lose writes
+--- PASS: TestSentinelFailover (6.81s)
+=== RUN   TestWorkerSurvivesRedisRestart
+    restart_worker_test.go:84: live Worker Redis restart: handler_cancel_and_recovery_RTO=16.666303834s retry_at=1791973571140 attempts=2; includes actual 15s+jitter backoff
+--- PASS: TestWorkerSurvivesRedisRestart (16.82s)
+=== RUN   TestACLAndTLS
+redis: 2026/10/14 18:26:11 pool.go:717: redis: connection pool: failed to dial after 5 attempts: tls: failed to verify certificate: x509: certificate is valid for localhost, not wrong.example
+    security_test.go:103: TLS trusted CA/hostname and namespace ACL passed; invalid hostname and foreign key rejected
+--- PASS: TestACLAndTLS (0.55s)
+=== RUN   TestNoEvictionOOMAndClusterRejection
+=== RUN   TestNoEvictionOOMAndClusterRejection/OOM
+    security_test.go:152: noeviction OOM returned INTERNAL, preserved existing Hash, no partial enqueue; capacity restored and Inspector healthy
+=== RUN   TestNoEvictionOOMAndClusterRejection/Cluster
+--- PASS: TestNoEvictionOOMAndClusterRejection (0.22s)
+    --- PASS: TestNoEvictionOOMAndClusterRejection/OOM (0.12s)
+    --- PASS: TestNoEvictionOOMAndClusterRejection/Cluster (0.11s)
+PASS
+ok  	fairq/tests/acceptance	30.313s
+=== RUN   TestPercentiles
+--- PASS: TestPercentiles (0.00s)
+PASS
+ok  	fairq/tools/benchmark	5.528s
+=== RUN   TestGoroutineCountExcludesDeadGoroutinesDuringGC
+--- PASS: TestGoroutineCountExcludesDeadGoroutinesDuringGC (0.20s)
+=== RUN   TestGoroutineCountTracksBlockedGoroutines
+--- PASS: TestGoroutineCountTracksBlockedGoroutines (0.00s)
+=== RUN   TestMetricsParsing
+--- PASS: TestMetricsParsing (0.00s)
+PASS
+ok  	fairq/tools/loadtest	6.249s
+real 30.92
+user 8.50
+sys 6.33
+
+
+COMMAND: /usr/bin/time -p go vet ./...
+RESULT: PASS
+real 0.26
+user 0.49
+sys 1.54
+
+
+COMMAND: /usr/bin/time -p go mod verify
+RESULT: PASS
+all modules verified
+real 0.11
+user 0.10
+sys 0.08
+
+
+COMMAND: /usr/bin/time -p go mod tidy -diff
+RESULT: PASS
+real 0.04
+user 0.05
+sys 0.43
+
+
+COMMAND: /usr/bin/time -p go test -race ./internal/rdb -run TestLargeRetryIntegersRoundTrip -count=1 -v
+RESULT: PASS
+=== RUN   TestLargeRetryIntegersRoundTrip
+=== RUN   TestLargeRetryIntegersRoundTrip/recover=false
+=== RUN   TestLargeRetryIntegersRoundTrip/recover=true
+--- PASS: TestLargeRetryIntegersRoundTrip (0.01s)
+    --- PASS: TestLargeRetryIntegersRoundTrip/recover=false (0.01s)
+    --- PASS: TestLargeRetryIntegersRoundTrip/recover=true (0.00s)
+PASS
+ok  	fairq/internal/rdb	2.337s
+real 2.83
+user 0.53
+sys 1.37
+
+
+COMMAND: HEAD requests for Markdown external links
+RESULT: PASS
+200 https://github.com/benedict-erwin/gqm
+200 https://github.com/benedict-erwin/gqm/tree/b090d225caa3a3d90a4e4bd5d17bb440f9067b7e
+200 https://github.com/hibiken/asynq/blob/v0.25.1/internal/rdb/rdb.go
+200 https://github.com/hibiken/asynq/tree/v0.25.1
+200 https://github.com/myui/fairque
+200 https://redis.io/blog/you-dont-need-transaction-rollbacks-in-redis/
+200 https://redis.io/docs/latest/commands/latency-histogram/
+200 https://redis.io/docs/latest/develop/programmability/eval-intro/
+
+
+Additional checks:
+PASS GOOS=linux GOARCH=386 go test -c ./internal/rdb -o /tmp/fairq-release-audit/rdb-linux-386.test (compile only; not executed)
+PASS go build -o /tmp/fairq-release-audit/basic ./examples/basic; run with -redis 127.0.0.1:16403; assert Completed=1; SIGINT; exit=0; Active=0; Lease=0
+PASS gofmt, git diff --check, local Markdown link targets
+PASS frozen v1.4 and all 10 existing JSON/TXT evidence files byte-identical to d77d399
+PASS GQM main archive matches pinned b090d225caa3a3d90a4e4bd5d17bb440f9067b7e archive
+BLOCKED codebase-memory indexing/coverage: daemon coordination could not be verified; direct source fallback used
+NOT_RUN 60-minute P01, 100,000-task performance benchmark, production environment/rollout
+CI excluded by user request

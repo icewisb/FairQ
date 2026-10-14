@@ -1,6 +1,6 @@
 # FairQ v1.4 编码契约
 
-唯一需求基线：[v1.4 原文](fairq-final-technical-design-v1.4.md)。本文件只细化实现，不增加 Redis Key、任务主状态或后台组件。生产就绪须通过 [验收](acceptance.md)。
+架构与可靠性基线：[v1.4 原文](fairq-final-technical-design-v1.4.md)。原文为历史设计，API 与目录示意不替代当前源码；本文件描述现有实现。本文件只细化实现，不增加 Redis Key、任务主状态或后台组件。生产就绪须通过 [验收](acceptance.md)。
 
 ## 1. 七项契约决议
 
@@ -35,9 +35,9 @@ C1 是由原文“存在性去重＋成功删除＋At-least-once”直接得到�
 
 不创建 stats:*、Group TTL、注册表或其它 Key。保留 completed 是原文可选能力，默认关闭。
 
-Hash 必需字段：`msg`（JSON，type 字符串、payload 标准 base64）、`group`、`state`、`retry_count`（初始0）、`max_retry`、`timeout_ms`、`retention_ms`、`enqueued_at`、`pending_since`。后续字段：`attempt_token`、`started_at`、`failed_at`、`finished_at`、`error`。首次入队没有 token，领取生成新 UUID；后续转换保留最后 token 以识别旧候选。Retry/Lease/终态截止时间以对应 ZSet 为准，不在 Hash 复制截止时间。
+Hash 必需字段：`msg`（JSON，type 字符串、payload 标准 base64）、`group`、`state`、`retry_count`（初始0）、`max_retry`、`timeout_ms`、`retention_ms`、`enqueued_at`；`pending_since` 仅 Pending 状态存在，领取时删除。后续字段：`attempt_token`、`started_at`、`failed_at`、`finished_at`、`error`。首次入队没有 token，领取生成新 UUID；后续转换保留最后 token 以识别旧候选。Retry/Lease/终态截止时间以对应 ZSet 为准，不在 Hash 复制截止时间。
 
-Task.Type 非空；Payload 原始字节默认≤256KiB，JSON/base64 的额外内存计入容量测试。正 duration 必须可表示为正整数毫秒，Lua 数值计算不超过精确整数范围；禁止负数、溢出、非有限值。msg 的解码在 Go 进行，失败保留原始 msg。错误文本与日志不包含 Payload 或完整 token。
+Task.Type 非空；Payload 原始字节默认≤256KiB，JSON/base64 的额外内存计入容量测试。正 duration 必须可表示为正整数毫秒，Lua 数值计算不超过精确整数范围；禁止负数、溢出、非有限值。msg 的解码在 Go 进行，失败保留原始 msg。FairQ 不自动记录 Payload 或完整 token；Handler 返回的 error 文本会写入 Task Hash，业务应自行脱敏。
 
 `timeout_ms` / `retention_ms` 还必须能无溢出转换为 Go `time.Duration`：最大整数毫秒为 9223372036854。Lua 在入队、领取及完成所需字段的写前校验中执行同一限制；Inspector 对超范围值报告 FIELD。损坏字段不得在任务已转 Active 后才发现溢出。
 
@@ -66,7 +66,7 @@ Lease 有效当且仅当 `deadline > RedisNow`，等于即过期；Retry/清理�
 
 ## 4. Lua 通用协议
 
-Go 使用固定脚本和参数列表，不拼接用户脚本。Lua RESP 数组首项为 code；`OK` 只表示成功标记，不是新增错误码。数据项为字符串/整数，禁止用 nil 造成数组截断。Redis 传输/脚本异常统一为 INTERNAL，保留 underlying error 和操作名供脱敏诊断。
+Go 使用固定脚本和参数列表，不拼接用户脚本。Lua RESP 数组首项为 code；`OK` 只表示成功标记，不是新增错误码。数据项为字符串/整数，整数直接返回 RESP integer，避免 Lua tostring 对大整数舍入或科学计数法；禁止用 nil 造成数组截断。Redis 传输/脚本异常统一为 INTERNAL，保留 underlying error 和操作名供脱敏诊断。
 
 实现使用统一 KEYS 槽位 `[Ready,Members,Active,Lease,Retry,Archived,Completed,BadRefs]`；下列各转换的 KEYS 列表描述逻辑读写集合，Task/Pending 由固定前缀和已校验参数派生，不增加 Key。
 
@@ -175,4 +175,4 @@ CORRUPT_REFERENCE 延迟严格为 `min(100ms*2^min(n-10,4),1s)`；等待期间�
 
 ## 7. 验收与阻塞
 
-阶段0完成仅表示上述文档契约自洽、可测试，不表示任何运行时验收已通过。目前没有必须新增 Key/主状态才能解决的已确认 P0 架构阻塞。部分写入、未知结果、并发恢复和长期负载仍必须由后续真实测试证明；测试发现 P0 必须修复并重验，不得标为“已知限制”上线。
+本契约不等于生产认证。实际测试结果、历史失败和未完成门禁见 [验收报告](acceptance-report.md) 与 [发布审计](release-audit.md)。测试发现 P0 必须修复并重验，不得标为“已知限制”上线。

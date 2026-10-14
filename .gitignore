@@ -1,6 +1,11 @@
 .DS_Store
 /bin/
-/coverage.out
 .env
 .env.*
 !.env.example
+/coverage*.out
+*.test
+*.prof
+*.pprof
+*.trace
+*.log
