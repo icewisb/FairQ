@@ -1,0 +1,47 @@
+{
+  "Started": "2026-10-14T09:21:39.362514Z",
+  "DurationSeconds": 30.032975292,
+  "DrainSeconds": 1.001300375,
+  "Groups": 10,
+  "Backlog": 100,
+  "Processes": 2,
+  "Slots": 4,
+  "PayloadBytes": 256,
+  "Accepted": 3348,
+  "Handled": 3348,
+  "Duplicates": 0,
+  "PeakRedisBytes": 150837824,
+  "MemoryBudgetBytes": 805306368,
+  "CommandCount": 12237,
+  "CommandAbove30ms": 0,
+  "Samples": [
+    {
+      "ElapsedSeconds": 1.029226334,
+      "Accepted": 216,
+      "Handled": 108,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        0,
+        0
+      ]
+    },
+    {
+      "ElapsedSeconds": 30.032966667,
+      "Accepted": 3348,
+      "Handled": 3240,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        11,
+        11
+      ]
+    }
+  ],
+  "Errors": null,
+  "Inspector": {
+    "Complete": true,
+    "CheckedTasks": 0,
+    "CheckedPending": 0,
+    "Issues": null
+  },
+  "Passed": false
+}

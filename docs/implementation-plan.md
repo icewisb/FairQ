@@ -13,6 +13,8 @@
 | 6 运维 | 5 | 只读Inspector、Archived清理、指标、Runbook | inspector/、internal/rdb/clean、server指标、docs/runbook.md | X06、O01–O03；无查询写入、无终态误删 |
 | 7 生产验收 | 6 | 全量故障/多进程/长稳/恢复演练，容量与上线文档 | tests/、scripts/、docs/acceptance-report.md、使用说明 | F01–F05、P01–P04、G01–G03全部有真实结果 |
 
+执行约束更新（2026-10-14）：用户明确要求后续不再运行一小时长测。日常验证改用短时定向测试，负载工具默认30秒；保留P01首轮失败证据和原验收标准，不把短测替代为完整长稳通过。未关闭项见 acceptance-report.md。
+
 每个独立功能单元：实现→相关测试→回归→对照验收→Git commit→更新进度→自动进入下一单元。失败自主修复，不降低断言、不删除失败用例。未通过阶段门禁不进入下一阶段；环境阻塞与代码失败分开记录，可完成不依赖阻塞项的安全工作。
 
 Completed/Retention已在阶段6实现，默认关闭；正Retention启用保留与到期清理。Redis持久stats延后，使用最小Prometheus指标。无Group GC、优先级、Cron、DAG、Incident/自动Repair平台、选主服务。

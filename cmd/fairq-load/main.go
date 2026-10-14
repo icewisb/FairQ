@@ -27,7 +27,7 @@ import (
 
 var addr = flag.String("redis", "", "isolated Redis address; selected DB must be empty")
 var db = flag.Int("db", 5, "isolated DB")
-var duration = flag.Duration("duration", time.Hour, "sustained load duration, excluding seed/drain")
+var duration = flag.Duration("duration", 30*time.Second, "sustained load duration, excluding seed/drain")
 var groups = flag.Int("groups", 1000, "groups")
 var backlog = flag.Int("backlog", 100000, "target pending backlog")
 var processes = flag.Int("processes", 10, "independent worker processes")

@@ -1,0 +1,2208 @@
+{
+  "Started": "2026-10-14T08:13:36.057281Z",
+  "DurationSeconds": 3600.179101167,
+  "DrainSeconds": 126.130384667,
+  "Groups": 1000,
+  "Backlog": 100000,
+  "Processes": 10,
+  "Slots": 80,
+  "PayloadBytes": 256,
+  "Accepted": 2973607,
+  "Handled": 2973607,
+  "Duplicates": 0,
+  "PeakRedisBytes": 150837824,
+  "MemoryBudgetBytes": 805306368,
+  "CommandCount": 11766623,
+  "CommandAbove30ms": 1273,
+  "Samples": [
+    {
+      "ElapsedSeconds": 1.053019125,
+      "Accepted": 100831,
+      "Handled": 31,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "ElapsedSeconds": 30.222987917,
+      "Accepted": 124000,
+      "Handled": 23200,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "ElapsedSeconds": 60.232140125,
+      "Accepted": 148000,
+      "Handled": 47200,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 90.22876875,
+      "Accepted": 172000,
+      "Handled": 71200,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 120.19784958299999,
+      "Accepted": 196000,
+      "Handled": 95200,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 150.185378208,
+      "Accepted": 220000,
+      "Handled": 119200,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 180.196038208,
+      "Accepted": 244000,
+      "Handled": 143200,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 210.188796167,
+      "Accepted": 268000,
+      "Handled": 167200,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 240.217479708,
+      "Accepted": 292000,
+      "Handled": 191200,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 270.181209125,
+      "Accepted": 316000,
+      "Handled": 215200,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 300.192856458,
+      "Accepted": 340000,
+      "Handled": 239200,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 330.2013075,
+      "Accepted": 364000,
+      "Handled": 263200,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 360.174528167,
+      "Accepted": 388000,
+      "Handled": 287200,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 390.225399708,
+      "Accepted": 411320,
+      "Handled": 310520,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 420.232780208,
+      "Accepted": 435200,
+      "Handled": 334400,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 450.227855,
+      "Accepted": 459200,
+      "Handled": 358400,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 480.228434792,
+      "Accepted": 483200,
+      "Handled": 382400,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 510.202437208,
+      "Accepted": 507200,
+      "Handled": 406400,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 540.180934792,
+      "Accepted": 531200,
+      "Handled": 430400,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 570.266106542,
+      "Accepted": 555200,
+      "Handled": 454400,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 600.186168792,
+      "Accepted": 579200,
+      "Handled": 478400,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 630.187904917,
+      "Accepted": 603200,
+      "Handled": 502400,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 660.189908458,
+      "Accepted": 627200,
+      "Handled": 526400,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 690.184428458,
+      "Accepted": 651200,
+      "Handled": 550400,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 720.18637775,
+      "Accepted": 675200,
+      "Handled": 574400,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 750.189930917,
+      "Accepted": 699200,
+      "Handled": 598400,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 780.18336275,
+      "Accepted": 722960,
+      "Handled": 622160,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 810.211229542,
+      "Accepted": 746660,
+      "Handled": 645860,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 840.205250958,
+      "Accepted": 770604,
+      "Handled": 669804,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 870.233812875,
+      "Accepted": 794408,
+      "Handled": 693608,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 900.2141645,
+      "Accepted": 818400,
+      "Handled": 717600,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 930.199484833,
+      "Accepted": 842400,
+      "Handled": 741600,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 960.222177083,
+      "Accepted": 866400,
+      "Handled": 765600,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 990.190279708,
+      "Accepted": 890400,
+      "Handled": 789600,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 1020.177750083,
+      "Accepted": 914400,
+      "Handled": 813600,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 1050.17765875,
+      "Accepted": 938400,
+      "Handled": 837600,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 1080.180876208,
+      "Accepted": 962400,
+      "Handled": 861600,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        159,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 1110.191461917,
+      "Accepted": 986400,
+      "Handled": 885600,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        159,
+        163,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 1140.187045625,
+      "Accepted": 1010400,
+      "Handled": 909600,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 1170.17521025,
+      "Accepted": 1034400,
+      "Handled": 933600,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 1200.170643417,
+      "Accepted": 1058400,
+      "Handled": 957600,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 1230.184957542,
+      "Accepted": 1082136,
+      "Handled": 981336,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 1260.218557708,
+      "Accepted": 1105671,
+      "Handled": 1004871,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 1290.226585667,
+      "Accepted": 1129603,
+      "Handled": 1028803,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 1320.223023708,
+      "Accepted": 1153603,
+      "Handled": 1052803,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 1350.241410208,
+      "Accepted": 1177603,
+      "Handled": 1076803,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 1380.17606275,
+      "Accepted": 1201601,
+      "Handled": 1100801,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 1410.183448333,
+      "Accepted": 1225600,
+      "Handled": 1124800,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 1440.185976,
+      "Accepted": 1249600,
+      "Handled": 1148800,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 1470.1840835,
+      "Accepted": 1273600,
+      "Handled": 1172800,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 1500.180056458,
+      "Accepted": 1297600,
+      "Handled": 1196800,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 1530.171577917,
+      "Accepted": 1321600,
+      "Handled": 1220800,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 1560.179717333,
+      "Accepted": 1345600,
+      "Handled": 1244800,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 1590.1740375,
+      "Accepted": 1369600,
+      "Handled": 1268800,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 1620.170225458,
+      "Accepted": 1393600,
+      "Handled": 1292800,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 1650.163554958,
+      "Accepted": 1417600,
+      "Handled": 1316800,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 1680.225382292,
+      "Accepted": 1440804,
+      "Handled": 1340004,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 1710.216173375,
+      "Accepted": 1464803,
+      "Handled": 1364003,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 1740.219219708,
+      "Accepted": 1488803,
+      "Handled": 1388003,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 1770.205081542,
+      "Accepted": 1512803,
+      "Handled": 1412003,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 1800.18895025,
+      "Accepted": 1536803,
+      "Handled": 1436003,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 1830.198249333,
+      "Accepted": 1560803,
+      "Handled": 1460003,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 1860.171824958,
+      "Accepted": 1584803,
+      "Handled": 1484003,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 1890.1832005,
+      "Accepted": 1608803,
+      "Handled": 1508003,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 1920.177492125,
+      "Accepted": 1632803,
+      "Handled": 1532003,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 1950.182319583,
+      "Accepted": 1656802,
+      "Handled": 1556002,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 1980.213478042,
+      "Accepted": 1680802,
+      "Handled": 1580002,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 2010.182273167,
+      "Accepted": 1704801,
+      "Handled": 1604001,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 2040.18096125,
+      "Accepted": 1728801,
+      "Handled": 1628001,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 2070.166698,
+      "Accepted": 1752801,
+      "Handled": 1652001,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 2100.186439667,
+      "Accepted": 1776493,
+      "Handled": 1675693,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 2130.22264125,
+      "Accepted": 1800007,
+      "Handled": 1699207,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 2160.219365792,
+      "Accepted": 1824004,
+      "Handled": 1723204,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 2190.217094083,
+      "Accepted": 1848004,
+      "Handled": 1747204,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 2220.209226833,
+      "Accepted": 1872004,
+      "Handled": 1771204,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 2250.193394875,
+      "Accepted": 1896004,
+      "Handled": 1795204,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 2280.18650875,
+      "Accepted": 1920003,
+      "Handled": 1819203,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 2310.17885675,
+      "Accepted": 1944003,
+      "Handled": 1843203,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        299,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 2340.17313075,
+      "Accepted": 1968003,
+      "Handled": 1867203,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 2370.181117583,
+      "Accepted": 1992003,
+      "Handled": 1891203,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 2400.181970417,
+      "Accepted": 2016003,
+      "Handled": 1915203,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        165,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 2430.181143792,
+      "Accepted": 2040003,
+      "Handled": 1939203,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 2460.171226,
+      "Accepted": 2064003,
+      "Handled": 1963203,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 2490.172954375,
+      "Accepted": 2088003,
+      "Handled": 1987203,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 2520.17099825,
+      "Accepted": 2112003,
+      "Handled": 2011203,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 2550.214022333,
+      "Accepted": 2135207,
+      "Handled": 2034407,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 2580.2190395,
+      "Accepted": 2159207,
+      "Handled": 2058407,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 2610.216489708,
+      "Accepted": 2183207,
+      "Handled": 2082407,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 2640.222362208,
+      "Accepted": 2207207,
+      "Handled": 2106407,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 2670.186363792,
+      "Accepted": 2231204,
+      "Handled": 2130404,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 2700.182910167,
+      "Accepted": 2255204,
+      "Handled": 2154404,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 2730.186634583,
+      "Accepted": 2279204,
+      "Handled": 2178404,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 2760.177669542,
+      "Accepted": 2303204,
+      "Handled": 2202404,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 2790.177709792,
+      "Accepted": 2327204,
+      "Handled": 2226404,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 2820.17203075,
+      "Accepted": 2351204,
+      "Handled": 2250404,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 2850.17869075,
+      "Accepted": 2375204,
+      "Handled": 2274404,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 2880.18082475,
+      "Accepted": 2399203,
+      "Handled": 2298403,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 2910.172099792,
+      "Accepted": 2423203,
+      "Handled": 2322403,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 2940.164178583,
+      "Accepted": 2447203,
+      "Handled": 2346403,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 2970.220860667,
+      "Accepted": 2470407,
+      "Handled": 2369607,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 3000.221737542,
+      "Accepted": 2494407,
+      "Handled": 2393607,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 3030.219157417,
+      "Accepted": 2518407,
+      "Handled": 2417607,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 3060.216023042,
+      "Accepted": 2542407,
+      "Handled": 2441607,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 3090.198535042,
+      "Accepted": 2566407,
+      "Handled": 2465607,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 3120.176153458,
+      "Accepted": 2590407,
+      "Handled": 2489607,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 3150.181820417,
+      "Accepted": 2614407,
+      "Handled": 2513607,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 3180.184146667,
+      "Accepted": 2638404,
+      "Handled": 2537604,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 3210.183440458,
+      "Accepted": 2662404,
+      "Handled": 2561604,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 3240.178336417,
+      "Accepted": 2686404,
+      "Handled": 2585604,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        155,
+        167,
+        161,
+        167,
+        167,
+        167,
+        164,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 3270.18625075,
+      "Accepted": 2710404,
+      "Handled": 2609604,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 3300.179029625,
+      "Accepted": 2734404,
+      "Handled": 2633604,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 3330.183226417,
+      "Accepted": 2758404,
+      "Handled": 2657604,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 3360.169996875,
+      "Accepted": 2782404,
+      "Handled": 2681604,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 3390.202076542,
+      "Accepted": 2805700,
+      "Handled": 2704900,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 3420.21744875,
+      "Accepted": 2829607,
+      "Handled": 2728807,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 3450.227758667,
+      "Accepted": 2853607,
+      "Handled": 2752807,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 3480.184117292,
+      "Accepted": 2877607,
+      "Handled": 2776807,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 3510.185885542,
+      "Accepted": 2901607,
+      "Handled": 2800807,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 3540.181038417,
+      "Accepted": 2925607,
+      "Handled": 2824807,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 3570.170801542,
+      "Accepted": 2949607,
+      "Handled": 2848807,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    },
+    {
+      "ElapsedSeconds": 3600.1790825,
+      "Accepted": 2973607,
+      "Handled": 2872807,
+      "UsedMemory": 150837824,
+      "WorkerGoroutines": [
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167,
+        167
+      ]
+    }
+  ],
+  "Errors": [
+    "worker 5 goroutines grew 167 -\u003e 299",
+    "load correctness checks failed"
+  ],
+  "Inspector": {
+    "Complete": true,
+    "CheckedTasks": 0,
+    "CheckedPending": 0,
+    "Issues": null
+  },
+  "Passed": false
+}

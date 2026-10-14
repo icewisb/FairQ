@@ -1,11 +1,11 @@
 ?   	fairq	[no test files]
-ok  	fairq/client	2.870s
-ok  	fairq/cmd/fairq-load	2.314s
-ok  	fairq/cmd/fairq-perf	3.319s
-ok  	fairq/inspector	3.955s
-ok  	fairq/internal/base	4.305s
+ok  	fairq/client	2.586s
+ok  	fairq/cmd/fairq-load	3.506s
+ok  	fairq/cmd/fairq-perf	3.025s
+ok  	fairq/inspector	4.100s
+ok  	fairq/internal/base	4.444s
 ?   	fairq/internal/clock	[no test files]
-ok  	fairq/internal/rdb	12.142s
+ok  	fairq/internal/rdb	12.739s
 ?   	fairq/internal/testutil	[no test files]
-ok  	fairq/server	27.034s
-ok  	fairq/tests/acceptance	30.504s
+ok  	fairq/server	26.540s
+ok  	fairq/tests/acceptance	30.851s

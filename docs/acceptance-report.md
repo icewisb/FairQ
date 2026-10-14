@@ -1,6 +1,6 @@
 # FairQ v1.4 验收报告（进行中）
 
-日期：2026-10-14。唯一行为基线为 v1.4；矩阵见 [acceptance.md](acceptance.md)。阶段0–6已验收，阶段7的故障、安全、隔离性能已通过，**60分钟长稳尚在运行，整体生产门禁尚未关闭**。没有已确认未修复的P0架构问题。
+日期：2026-10-14。唯一行为基线为 v1.4；矩阵见 [acceptance.md](acceptance.md)。阶段0–6已验收，阶段7的故障、安全、隔离性能已通过，**首轮长稳因goroutine峰值检查失败，整体生产门禁尚未关闭**。没有已确认未修复的P0架构问题。用户已要求不再运行一小时长测，后续只做短时定向验证；不放宽原验收标准。
 
 ## 实测环境
 
@@ -22,15 +22,20 @@ Apple M4 Pro，48GiB内存，macOS arm64，Go1.27.1；Redis8.0.2官方源码、T
 | F04存活Worker | [真实重启记录](reports/worker-restart-20261014.txt)：Redis停机超过Lease后旧Handler被取消；原Worker重连并完成Recover→真实退避→Forward→新attempt，完整恢复16.180s；迟到旧Handler不能改新状态，race通过 |
 | F05、G02技术演练 | 真实noeviction OOM返回INTERNAL并保留已有任务；恢复容量后Inspector健康；TLS可信CA/主机名、ACL命名空间权限通过，错误主机名/越权写拒绝；实际Cluster节点被初始化拒绝 |
 | P02、P04 | [原始性能报告](reports/perf-20261014.json)：99999次Dequeue单独采样，Lua p99桶上界0.066ms，API p99 0.160292ms；10万Lease集中到期，100000扫描/100000转换，203轮、每轮最多500条，耗时19.154s，调用p99 0.360875ms；Inspector核对10万任务无异常 |
-| P03容量子项 | 性能实例Redis峰值159347712bytes，占805306368bytes预算19.79%，无eviction；长稳峰值/停止生产后排空结果待结束记录 |
+| P03容量与排空 | 性能实例Redis峰值159347712bytes，占预算19.79%；长稳峰值150837824bytes，占预算18.73%，无eviction，停止生产后126.130s排空，最终Inspector无异常 |
 | G03 | README/Runbook提供少Group低并发灰度、新任务路由回Asynq、旧FairQ排空/审计迁移方案；未触碰生产路由 |
 
 Dequeue Lua指标来自隔离Redis `LATENCY HISTOGRAM evalsha`，只包含预热后的Dequeue；桶上界与原始累计计数均保留，不拿平均耗时代替p99。[Redis官方命令说明](https://redis.io/docs/latest/commands/latency-histogram/)定义了该累计直方图。API采样含脚本调用、连接等待和客户端开销；10万Lease恢复是无tick间10s等待的极端压力测试，不能用19.154s推算默认配置的故障恢复SLA。
 
+## 首轮长稳结果
+
+[失败原始报告](reports/soak-20261014-failed.json) 保留了完整样本和错误。持续3600.179s，入队/执行记录均为2973607，重复0；排空后Inspector完整检查，任务和索引均为空。含排空吞吐约798次/s；11766623条Redis命令中1273条超过30ms，比例约0.01082%。任务守恒、内存和延迟子项通过。
+
+P01整体失败：Worker 5在约2310s样本中goroutine由167升至299，前后样本均167；触发工具原有的基线+32断言。尚无当时的goroutine堆栈，不能据此断言为泄漏或正常波动，也不能凭随后恢复就关闭问题。后续最小诊断应在短时压力下采集峰值堆栈；不重复一小时测试，不用短跑替代P01。
+
 ## 待完成
 
-- P01：1000 Group、约10万Pending、10进程×80槽、持续60分钟。长稳仍运行，结束后核对每个稳定ID、异常计数、goroutine曲线、内存、命令延迟和排空状态。
-- P03完整结果：长稳吞吐、失败率、排空时间与最终不变量。
+- P01：goroutine瞬时峰值原因未确认，原长稳验收失败；用户限制后续测试时长，完整长稳复验不执行。
 - 最终交付门禁签收；G01完整真实Redis/race回归已通过，见 [原始输出](reports/regression-20261014.txt)。
 - 生产目标环境验收与真实业务灰度：未执行，不属于本次本地演练通过范围。
 
