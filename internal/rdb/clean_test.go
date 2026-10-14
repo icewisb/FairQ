@@ -80,3 +80,39 @@ func TestArchiveThresholdDoesNotTrim(t *testing.T) {
 		t.Fatal("archive threshold trimmed/refused tasks")
 	}
 }
+
+func TestArchivedNinetyDayRetention(t *testing.T) {
+	s, c := store(t)
+	ctx := context.Background()
+	now, err := c.Time(ctx).Result()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, id := range []string{"young", "due"} {
+		enqueue(t, s, id, "g")
+		a, e := s.Dequeue(ctx, time.Minute)
+		if e != nil {
+			t.Fatal(e)
+		}
+		if _, e = s.Fail(ctx, a, 0, "", true); e != nil {
+			t.Fatal(e)
+		}
+		age := 89 * 24 * time.Hour
+		if id == "due" {
+			age = 91 * 24 * time.Hour
+		}
+		if e = c.ZAdd(ctx, rdb.Archived, redis.Z{Member: id, Score: float64(now.Add(-age).UnixMilli())}).Err(); e != nil {
+			t.Fatal(e)
+		}
+	}
+	page, err := s.Scan(ctx, "archived", 0, 100, 90*24*time.Hour)
+	if err != nil || len(page.Candidates) != 1 || page.Candidates[0].ID != "due" {
+		t.Fatal(page, err)
+	}
+	if err = s.Clean(ctx, "archived", page.Candidates[0], 90*24*time.Hour); err != nil {
+		t.Fatal(err)
+	}
+	if c.Exists(ctx, rdb.TaskKey("due")).Val() != 0 || c.Exists(ctx, rdb.TaskKey("young")).Val() != 1 || c.ZCard(ctx, rdb.Archived).Val() != 1 {
+		t.Fatal("90-day retention violated")
+	}
+}

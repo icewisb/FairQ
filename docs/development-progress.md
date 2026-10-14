@@ -5,7 +5,7 @@
 - 当前阶段：7 生产验收进行中（故障/安全/性能通过，60分钟长稳运行中）。
 - 已完成：完整复核v1.4；七项契约决议；Lua协议、数据不变量、状态/错误表、全量验收映射；原文归档。
 - 已通过：阶段0文档链接/原文SHA256检查；阶段1 `FAIRQ_TEST_REDIS=127.0.0.1:16379 go test ./...` 与 `go test -race ./...`，真实Redis 8.0.2，100并发入队/去重、查询、校验无写入、错误返回ID、Cluster配置拒绝。
-- 最近成功Commit：`20444b4 test(acceptance): add fault failover security and load verification`。
+- 最近成功Commit：`0a22f50 test(concurrency): synchronize all claimant and maintenance processes`。
 - 未完成：阶段7；Sentinel真实切换/连接验收在阶段7，不把配置支持当作故障演练通过。
 - 已知边界：Hash存续期去重；业务At-least-once幂等；Sentinel非零RPO；运行时Lua错误不回滚。
 - 阻塞：无已确认P0架构阻塞。codebase-memory索引服务启动失败，已直接检查源文件；后续图覆盖不可用时使用源文件核验。隔离Docker容器 fairq-dev-01a13941，127.0.0.1:16379；测试显式选用DB1..15，禁止指向生产。
@@ -38,3 +38,5 @@
 - 长稳进程由当前会话启动（exec session 19348），地址16400/DB5，日志 /private/tmp/fairq-soak.log，最终报告 docs/reports/soak-20261014.json。进程结束/中断不保证自行续跑；若未满60分钟需重新执行完整长稳，不能用短跑补时间。
 
 - 多进程测试增加仅测试用文件起跑屏障：10进程/800槽全就绪后同时领取；维护器同样同步启动。race目标回归通过，见 reports/multiprocess-20261014.txt。补充默认Done删除后的TaskID复用与旧token不能结束新任务的测试。
+
+- O01/W03补充：真实Redis验证89天Archived保留、91天到期删除；Run取消仍等待在途完成，3个并发Shutdown均正常退出。目标race回归通过。完整回归原始输出见 reports/regression-20261014.txt；覆盖率按Go包独立计数，外部集成和独立进程工具执行不完整计入该百分比，不以该数字替代验收矩阵。

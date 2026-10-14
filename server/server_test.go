@@ -375,3 +375,52 @@ func TestKillWorkerRecovery(t *testing.T) {
 		t.Fatal("killed task not recovered through real backoff")
 	}
 }
+
+func TestRunCancellationPreservesGracefulDrain(t *testing.T) {
+	cfg := config(t)
+	cfg.Concurrency = 1
+	s, c := running(t, cfg)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	seed(t, s.store, "run")
+	started := make(chan context.Context, 1)
+	release := make(chan struct{})
+	done := make(chan error, 1)
+	go func() {
+		done <- s.Run(ctx, func(handlerCtx context.Context, _ fairq.Task) error { started <- handlerCtx; <-release; return nil })
+	}()
+	handlerCtx := <-started
+	cancel()
+	time.Sleep(100 * time.Millisecond)
+	select {
+	case err := <-done:
+		t.Fatal("Run returned before graceful drain", err)
+	default:
+	}
+	if handlerCtx.Err() != nil {
+		t.Fatal("Run cancellation canceled in-flight handler too early")
+	}
+	shutdowns := make(chan struct{}, 3)
+	for i := 0; i < 3; i++ {
+		go func() { s.Shutdown(); shutdowns <- struct{}{} }()
+	}
+	close(release)
+	select {
+	case err := <-done:
+		if err != nil {
+			t.Fatal(err)
+		}
+	case <-time.After(time.Second):
+		t.Fatal("Run did not finish")
+	}
+	for i := 0; i < 3; i++ {
+		select {
+		case <-shutdowns:
+		case <-time.After(time.Second):
+			t.Fatal("concurrent shutdown hung")
+		}
+	}
+	if c.Exists(context.Background(), rdb.TaskKey("run")).Val() != 0 {
+		t.Fatal("gracefully completed task retained")
+	}
+}
