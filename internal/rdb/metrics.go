@@ -84,14 +84,14 @@ func (s *Store) RecordMaintenance(kind string, scanned, converted, isolated, fai
 }
 
 func (m *metrics) write(w io.Writer) {
+	var body strings.Builder
 	m.mu.Lock()
-	defer m.mu.Unlock()
-	fmt.Fprintln(w, "# TYPE fairq_operations_total counter")
+	fmt.Fprintln(&body, "# TYPE fairq_operations_total counter")
 	for key, n := range m.operations {
 		parts := strings.SplitN(key, "/", 2)
-		fmt.Fprintf(w, "fairq_operations_total{operation=%q,result=%q} %d\n", parts[0], parts[1], n)
+		fmt.Fprintf(&body, "fairq_operations_total{operation=%q,result=%q} %d\n", parts[0], parts[1], n)
 	}
-	fmt.Fprintln(w, "# TYPE fairq_redis_command_duration_seconds histogram")
+	fmt.Fprintln(&body, "# TYPE fairq_redis_command_duration_seconds histogram")
 	for cmd, h := range m.commands {
 		var cumulative uint64
 		for i, n := range h.Buckets {
@@ -100,16 +100,19 @@ func (m *metrics) write(w io.Writer) {
 			if i < len(latencyBounds) {
 				bound = strconv.FormatFloat(latencyBounds[i], 'g', -1, 64)
 			}
-			fmt.Fprintf(w, "fairq_redis_command_duration_seconds_bucket{command=%q,le=%q} %d\n", cmd, bound, cumulative)
+			fmt.Fprintf(&body, "fairq_redis_command_duration_seconds_bucket{command=%q,le=%q} %d\n", cmd, bound, cumulative)
 		}
-		fmt.Fprintf(w, "fairq_redis_command_duration_seconds_sum{command=%q} %g\nfairq_redis_command_duration_seconds_count{command=%q} %d\n", cmd, h.Sum, cmd, h.Count)
+		fmt.Fprintf(&body, "fairq_redis_command_duration_seconds_sum{command=%q} %g\nfairq_redis_command_duration_seconds_count{command=%q} %d\n", cmd, h.Sum, cmd, h.Count)
 	}
 	for n, field := range []string{"scanned", "converted", "isolated", "failed"} {
-		fmt.Fprintf(w, "# TYPE fairq_maintenance_%s_total counter\n", field)
+		fmt.Fprintf(&body, "# TYPE fairq_maintenance_%s_total counter\n", field)
 		for kind, values := range m.maintenance {
-			fmt.Fprintf(w, "fairq_maintenance_%s_total{operation=%q} %d\n", field, kind, values[n])
+			fmt.Fprintf(&body, "fairq_maintenance_%s_total{operation=%q} %d\n", field, kind, values[n])
 		}
 	}
+	m.mu.Unlock()
+	// A slow scrape must not hold up Redis hooks, heartbeats, or shutdown.
+	io.WriteString(w, body.String())
 }
 
 // MetricsHandler can be mounted on the application's HTTP server; it starts no listener.
