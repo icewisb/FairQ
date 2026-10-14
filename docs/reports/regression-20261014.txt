@@ -1,11 +1,11 @@
-	fairq		coverage: 0.0% of statements
-ok  	fairq/client	1.764s	coverage: 94.4% of statements
-ok  	fairq/cmd/fairq-load	2.250s	coverage: 8.5% of statements
-ok  	fairq/cmd/fairq-perf	2.737s	coverage: 13.0% of statements
-ok  	fairq/inspector	3.393s	coverage: 81.2% of statements
-ok  	fairq/internal/base	3.712s	coverage: 33.3% of statements
-	fairq/internal/clock		coverage: 0.0% of statements
-ok  	fairq/internal/rdb	11.895s	coverage: 57.9% of statements
-	fairq/internal/testutil		coverage: 0.0% of statements
-ok  	fairq/server	25.323s	coverage: 88.9% of statements
-ok  	fairq/tests/acceptance	13.655s	coverage: [no statements]
+?   	fairq	[no test files]
+ok  	fairq/client	2.870s
+ok  	fairq/cmd/fairq-load	2.314s
+ok  	fairq/cmd/fairq-perf	3.319s
+ok  	fairq/inspector	3.955s
+ok  	fairq/internal/base	4.305s
+?   	fairq/internal/clock	[no test files]
+ok  	fairq/internal/rdb	12.142s
+?   	fairq/internal/testutil	[no test files]
+ok  	fairq/server	27.034s
+ok  	fairq/tests/acceptance	30.504s

@@ -90,7 +90,7 @@ func TestACLAndTLS(t *testing.T) {
 		t.Fatal(err)
 	}
 	healthy(t, secured, 0)
-	if err = s.Redis.Set(ctx, "outside-namespace", "forbidden", 0).Err(); err == nil || !strings.Contains(err.Error(), "NOPERM") {
+	if err = s.Redis.HSet(ctx, "outside-namespace", "value", "forbidden").Err(); err == nil || !strings.Contains(err.Error(), "NOPERM") {
 		t.Fatal("ACL allowed foreign key", err)
 	}
 	bad := secured
