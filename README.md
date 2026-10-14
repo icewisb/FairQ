@@ -4,6 +4,8 @@ Go + Redis 多 Group 公平任务队列。Group 内按成功入队顺序 FIFO，
 
 ## 使用
 
+FairQ 以 Go 库嵌入业务程序：生产者调用 `client.Enqueue`，Worker 通过 `server` 注册业务 Handler。每条任务传入实际 `GroupKey`；活跃 Group 随入队和排空动态加入或退出轮转，无需预配置 Group 总数。
+
 ```go
 ctx := context.Background()
 redisConfig := redis.UniversalOptions{Addrs: []string{"127.0.0.1:6379"}}
@@ -42,6 +44,8 @@ return worker.Run(ctx, func(ctx context.Context, task fairq.Task) error {
 
 ## 开发验证
 
+`tools/loadtest` 和 `tools/benchmark` 用于生成模拟任务、压测和性能验收。它们需要独立测试 Redis，不能作为业务服务启动。工具参数 `-groups` 表示模拟的 Group 数量；业务接入使用上面的 Go API 示例。运行方式和报告含义见 [验收工具说明](tools/README.md)。
+
 Go 1.24+；真实 Redis 8.0.2 为当前验证版本。测试必须显式指定一次性 Redis，测试会清空 DB 1、2、3、4，禁止使用共享或生产地址。
 
 ```sh
@@ -49,4 +53,4 @@ FAIRQ_TEST_REDIS=127.0.0.1:16380 FAIRQ_REDIS_SERVER=/path/to/redis-server go tes
 go vet ./...
 ```
 
-无 Redis 环境时集成测试明确失败，不跳过。[测试环境记录](docs/test-environment.md) 包含本机与 Docker 的实测差异。故障、性能与长稳结果单独记录，未执行的项目不算通过。
+无 Redis 环境时集成测试明确失败，不跳过。[开发测试指南](docs/test-environment.md) 包含环境准备和历史实测差异。故障、性能与长稳结果单独记录，未执行的项目不算通过。

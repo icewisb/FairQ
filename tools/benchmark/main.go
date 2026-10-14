@@ -1,4 +1,4 @@
-// fairq-perf measures isolated Dequeue Lua and a 100,000-Lease recovery burst.
+// benchmark measures isolated Dequeue Lua and a synthetic 100,000-Lease recovery burst.
 package main
 
 import (

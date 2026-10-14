@@ -1,4 +1,4 @@
-// fairq-load exercises real workers against an explicitly selected empty Redis DB.
+// loadtest generates synthetic tasks to test FairQ against an isolated empty Redis DB.
 package main
 
 import (
@@ -28,7 +28,7 @@ import (
 var addr = flag.String("redis", "", "isolated Redis address; selected DB must be empty")
 var db = flag.Int("db", 5, "isolated DB")
 var duration = flag.Duration("duration", 30*time.Second, "sustained load duration, excluding seed/drain")
-var groups = flag.Int("groups", 1000, "groups")
+var groups = flag.Int("groups", 1000, "number of simulated groups; not a queue configuration or limit")
 var backlog = flag.Int("backlog", 100000, "target pending backlog")
 var processes = flag.Int("processes", 10, "independent worker processes")
 var slots = flag.Int("slots", 80, "worker concurrency per process")
