@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -115,18 +116,23 @@ func TestShutdownKeepsHeartbeats(t *testing.T) {
 	seed(t, s.store, "next")
 	started := make(chan struct{})
 	release := make(chan struct{})
+	releaseHandler := sync.OnceFunc(func() { close(release) })
+	defer releaseHandler()
 	if err := s.Start(func(context.Context, fairq.Task) error { close(started); <-release; return nil }); err != nil {
 		t.Fatal(err)
 	}
 	<-started
 	done := make(chan struct{})
 	go func() { s.Shutdown(); close(done) }()
+	eventually(t, time.Second, func() bool { s.mu.Lock(); defer s.mu.Unlock(); return s.state == 2 })
 	initial := c.ZScore(ctx, rdb.Lease, "a").Val()
-	time.Sleep(400 * time.Millisecond)
+	eventually(t, time.Second, func() bool {
+		return float64(c.Time(ctx).Val().UnixMilli()) > initial && c.ZScore(ctx, rdb.Lease, "a").Val() > initial
+	})
 	if c.ZScore(ctx, rdb.Lease, "a").Val() <= initial || c.HGet(ctx, rdb.TaskKey("next"), "state").Val() != "pending" {
 		t.Fatal("shutdown failed to renew or claimed more")
 	}
-	close(release)
+	releaseHandler()
 	select {
 	case <-done:
 	case <-time.After(time.Second):
@@ -385,13 +391,15 @@ func TestRunCancellationPreservesGracefulDrain(t *testing.T) {
 	seed(t, s.store, "run")
 	started := make(chan context.Context, 1)
 	release := make(chan struct{})
+	releaseHandler := sync.OnceFunc(func() { close(release) })
+	defer releaseHandler()
 	done := make(chan error, 1)
 	go func() {
 		done <- s.Run(ctx, func(handlerCtx context.Context, _ fairq.Task) error { started <- handlerCtx; <-release; return nil })
 	}()
 	handlerCtx := <-started
 	cancel()
-	time.Sleep(100 * time.Millisecond)
+	eventually(t, time.Second, func() bool { s.mu.Lock(); defer s.mu.Unlock(); return s.state == 2 })
 	select {
 	case err := <-done:
 		t.Fatal("Run returned before graceful drain", err)
@@ -404,7 +412,7 @@ func TestRunCancellationPreservesGracefulDrain(t *testing.T) {
 	for i := 0; i < 3; i++ {
 		go func() { s.Shutdown(); shutdowns <- struct{}{} }()
 	}
-	close(release)
+	releaseHandler()
 	select {
 	case err := <-done:
 		if err != nil {

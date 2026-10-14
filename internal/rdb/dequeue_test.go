@@ -42,37 +42,40 @@ func enqueue(t *testing.T, s *rdb.Store, id, group string) {
 }
 
 func TestRoundRobinFIFO(t *testing.T) {
-	s, c := store(t)
-	ctx := context.Background()
-	counts := []int{10, 2, 2}
-	for i, n := range counts {
-		for j := 0; j < n; j++ {
-			enqueue(t, s, fmt.Sprintf("%d-%d", i, j), fmt.Sprint(i))
-		}
-	}
-	wantOrder := []string{
-		"0-0", "1-0", "2-0", "0-1", "1-1", "2-1",
-		"0-2", "0-3", "0-4", "0-5", "0-6", "0-7", "0-8", "0-9",
-	}
-	for k, want := range wantOrder {
-		a, err := s.Dequeue(ctx, time.Minute)
-		if err != nil {
-			t.Fatal(err)
-		}
-		if a.ID != want || a.Token == "" {
-			t.Fatalf("claim %d got %s want %s", k, a.ID, want)
-		}
-	}
-	if c.LLen(ctx, rdb.Ready).Val() != 0 || c.SCard(ctx, rdb.Members).Val() != 0 || c.SCard(ctx, rdb.Active).Val() != int64(len(wantOrder)) || c.ZCard(ctx, rdb.Lease).Val() != int64(len(wantOrder)) {
-		t.Fatal("bad final indexes")
-	}
-	if _, err := s.Dequeue(ctx, time.Minute); !fairq.IsCode(err, fairq.Empty) {
-		t.Fatal(err)
-	}
-	enqueue(t, s, "new", "1")
-	a, err := s.Dequeue(ctx, time.Minute)
-	if err != nil || a.ID != "new" {
-		t.Fatalf("reactivation: %+v %v", a, err)
+	for _, tc := range []struct {
+		name   string
+		counts [3]int
+	}{{"balanced", [3]int{100, 100, 100}}, {"skewed", [3]int{10000, 1000, 1000}}} {
+		t.Run(tc.name, func(t *testing.T) {
+			s, c := store(t)
+			ctx := context.Background()
+			for group, count := range tc.counts {
+				for sequence := 0; sequence < count; sequence++ {
+					enqueue(t, s, fmt.Sprintf("%d-%d", group, sequence), fmt.Sprint(group))
+				}
+			}
+			// Each round visits every still-nonempty group once, in activation order.
+			claims := 0
+			for sequence := 0; sequence < tc.counts[0]; sequence++ {
+				for group, count := range tc.counts {
+					if sequence >= count {
+						continue
+					}
+					want := fmt.Sprintf("%d-%d", group, sequence)
+					a, err := s.Dequeue(ctx, time.Minute)
+					if err != nil || a.ID != want || a.Token == "" {
+						t.Fatalf("claim %d got %+v, %v; want %s", claims, a, err, want)
+					}
+					claims++
+				}
+			}
+			if c.LLen(ctx, rdb.Ready).Val() != 0 || c.SCard(ctx, rdb.Members).Val() != 0 || c.SCard(ctx, rdb.Active).Val() != int64(claims) || c.ZCard(ctx, rdb.Lease).Val() != int64(claims) {
+				t.Fatal("bad final indexes")
+			}
+			if _, err := s.Dequeue(ctx, time.Minute); !fairq.IsCode(err, fairq.Empty) {
+				t.Fatal(err)
+			}
+		})
 	}
 }
 

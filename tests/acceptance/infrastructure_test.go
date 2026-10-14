@@ -77,13 +77,27 @@ func (n *node) start() {
 }
 func (n *node) stop() {
 	if n.cmd != nil {
-		n.cmd.Process.Kill()
-		n.cmd.Wait()
+		if n.cmd.Process != nil {
+			n.cmd.Process.Kill()
+			n.cmd.Wait()
+		}
 		n.cmd = nil
 	}
 	if n.log != nil {
 		n.log.Close()
 		n.log = nil
+	}
+}
+
+func TestNodeCleanupAfterStartFailure(t *testing.T) {
+	n := &node{cmd: exec.Command(filepath.Join(t.TempDir(), "missing-redis"))}
+	t.Cleanup(n.stop)
+	if err := n.cmd.Start(); err == nil {
+		t.Fatal("unexpected process start")
+	}
+	n.stop()
+	if n.cmd != nil {
+		t.Fatal("failed command retained")
 	}
 }
 func (n *node) options() redis.UniversalOptions {
@@ -124,6 +138,7 @@ func TestAOFRestartAndBackupRestore(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer s.Close()
 	for j := 0; j < 20; j++ {
 		a, e := s.Dequeue(ctx, time.Minute)
 		if e != nil {
