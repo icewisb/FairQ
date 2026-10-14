@@ -2,6 +2,8 @@ package rdb_test
 
 import (
 	"context"
+	"os"
+	"reflect"
 	"testing"
 	"time"
 
@@ -10,6 +12,89 @@ import (
 	"fairq/internal/rdb"
 	"github.com/redis/go-redis/v9"
 )
+
+func TestFailureUsesCallerDelay(t *testing.T) {
+	for _, op := range []string{"retry", "recover"} {
+		t.Run(op, func(t *testing.T) {
+			s, c := store(t)
+			ctx := context.Background()
+			enqueue(t, s, "a", "g")
+			a, err := s.Dequeue(ctx, time.Minute)
+			if err != nil {
+				t.Fatal(err)
+			}
+			// Deliberately outside the default backoff range: Lua must not own that policy.
+			delay := 7 * time.Second
+			var tr rdb.Transition
+			if op == "recover" {
+				if err := c.ZAdd(ctx, rdb.Lease, redis.Z{Member: a.ID, Score: 0}).Err(); err != nil {
+					t.Fatal(err)
+				}
+			}
+			before := c.Time(ctx).Val().UnixMilli()
+			if op == "retry" {
+				tr, err = s.Fail(ctx, a, delay, "failure", false)
+			} else {
+				tr, err = s.Recover(ctx, rdb.Candidate{ID: a.ID, Token: a.Token, RetryCount: a.RetryCount, Score: "0"}, delay)
+			}
+			after := c.Time(ctx).Val().UnixMilli()
+			if err != nil || tr.State != "retry" || tr.RetryCount != 1 || tr.At.UnixMilli() < before+delay.Milliseconds() || tr.At.UnixMilli() > after+delay.Milliseconds() {
+				t.Fatal(tr, err)
+			}
+			if c.SIsMember(ctx, rdb.Active, a.ID).Val() || c.ZScore(ctx, rdb.Lease, a.ID).Err() != redis.Nil || c.HGet(ctx, rdb.TaskKey(a.ID), "state").Val() != "retry" || c.ZScore(ctx, rdb.Retry, a.ID).Val() != float64(tr.At.UnixMilli()) {
+				t.Fatal("inconsistent retry transition")
+			}
+		})
+	}
+}
+
+func TestFailureRejectsInvalidDelayWithoutWrites(t *testing.T) {
+	common, err := os.ReadFile("lua/common.lua")
+	if err != nil {
+		t.Fatal(err)
+	}
+	keys := []string{rdb.Ready, rdb.Members, rdb.Active, rdb.Lease, rdb.Retry, rdb.Archived, rdb.Completed, rdb.BadRefs}
+	for _, op := range []string{"retry", "recover"} {
+		body, err := os.ReadFile("lua/" + op + ".lua")
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, delay := range []string{"-1", "0.5", "nan", "inf", "9007199254740992", "9007199254740991"} {
+			t.Run(op+"/"+delay, func(t *testing.T) {
+				s, c := store(t)
+				ctx := context.Background()
+				enqueue(t, s, "a", "g")
+				a, err := s.Dequeue(ctx, time.Minute)
+				if err != nil {
+					t.Fatal(err)
+				}
+				args := []any{a.ID, a.Token, a.RetryCount, delay, "failure", "error"}
+				if op == "recover" {
+					if err := c.ZAdd(ctx, rdb.Lease, redis.Z{Member: a.ID, Score: 0}).Err(); err != nil {
+						t.Fatal(err)
+					}
+					args = []any{a.ID, a.Token, a.RetryCount, "0", delay}
+				}
+				before, err := c.HGetAll(ctx, rdb.TaskKey(a.ID)).Result()
+				if err != nil {
+					t.Fatal(err)
+				}
+				lease, err := c.ZScore(ctx, rdb.Lease, a.ID).Result()
+				if err != nil {
+					t.Fatal(err)
+				}
+				// Raw arguments exercise Lua's boundary, bypassing Go's duration validation.
+				reply, err := c.Eval(ctx, string(common)+"\n"+string(body), keys, args...).Slice()
+				if err != nil || len(reply) != 1 || reply[0] != "INTERNAL" {
+					t.Fatal(reply, err)
+				}
+				if !reflect.DeepEqual(before, c.HGetAll(ctx, rdb.TaskKey(a.ID)).Val()) || !c.SIsMember(ctx, rdb.Active, a.ID).Val() || c.ZScore(ctx, rdb.Lease, a.ID).Val() != lease || c.ZCard(ctx, rdb.Retry).Val() != 0 || c.ZCard(ctx, rdb.Archived).Val() != 0 {
+					t.Fatal("invalid delay changed task state or indexes")
+				}
+			})
+		}
+	}
+}
 
 func TestRetryCountsAndForwardFIFO(t *testing.T) {
 	s, c := store(t)

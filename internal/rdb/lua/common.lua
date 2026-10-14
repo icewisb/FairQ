@@ -61,15 +61,17 @@ local function fail_transition(id,now,delay,reason,decode)
     local task=taskkey(id)
     local count,maxretry=number(redis.call('HGET',task,'retry_count')),number(redis.call('HGET',task,'max_retry'))
     if not count or not maxretry or count>=9007199254740991 then return {'INTERNAL'} end
-    local k=count+1
-    local capped=15000
-    local i=1
-    while i<k and capped<3600000 do capped=math.min(capped*2,3600000);i=i+1 end
-    if not decode and (not delay or delay<capped or delay>capped*1.1) then return {'INTERNAL'} end
-    local state,score='retry',now+(delay or 0)
-    if decode or k>maxretry then state='archived';score=now end
+    local k,state,score=count,'archived',now
+    if decode then
+        reason='DECODE_FAILED'
+    else
+        k=count+1
+        if k<=maxretry then
+            -- Go owns backoff policy; callers validate delay as a nonnegative integer.
+            state='retry';score=now+delay
+        end
+    end
     if score>9007199254740991 then return {'INTERNAL'} end
-    if decode then k=count;reason='DECODE_FAILED' end
     redis.call('SREM',active,id)
     redis.call('ZREM',lease,id)
     redis.call('HSET',task,'state',state,'retry_count',k,'failed_at',now,'error',reason)

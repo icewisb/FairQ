@@ -28,6 +28,9 @@ func TestOwnershipAndServerTime(t *testing.T) {
 	if err = s.Done(ctx, old); !fairq.IsCode(err, fairq.StateConflict) {
 		t.Fatal(err)
 	}
+	if _, err = s.Fail(ctx, old, 7*time.Second, "stale attempt", false); !fairq.IsCode(err, fairq.StateConflict) {
+		t.Fatal(err)
+	}
 	r, err := s.Heartbeat(ctx, []rdb.Attempt{old, a}, time.Minute)
 	if err != nil || len(r) != 2 || !fairq.IsCode(r[0].Err, fairq.StateConflict) || r[1].Err != nil {
 		t.Fatalf("%+v %v", r, err)
@@ -54,6 +57,9 @@ func TestExpiredCannotFinishOrRenew(t *testing.T) {
 	now := c.Time(ctx).Val()
 	c.ZAdd(ctx, rdb.Lease, redis.Z{Member: a.ID, Score: float64(now.UnixMilli())})
 	if err = s.Done(ctx, a); !fairq.IsCode(err, fairq.LeaseExpired) {
+		t.Fatal(err)
+	}
+	if _, err = s.Fail(ctx, a, 7*time.Second, "expired attempt", false); !fairq.IsCode(err, fairq.LeaseExpired) {
 		t.Fatal(err)
 	}
 	r, err := s.Heartbeat(ctx, []rdb.Attempt{a}, time.Minute)
