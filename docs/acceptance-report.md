@@ -19,6 +19,7 @@ Apple M4 Pro，48GiB内存，macOS arm64，Go1.27.1；Redis8.0.2官方源码、T
 | F01–F02 | 8个变更脚本×6类故障，共48例：执行前断连、执行后丢响应、执行后超时、Lua首写前/首写后报错、主索引类型错误。真实TCP代理和真实Redis执行；预校验失败无写入，部分写入保留Hash且Inspector检测到，不声称Lua回滚 |
 | F03 | kill -9真实Worker，Lease过期后进入Retry，等待真实15s+抖动退避，再Forward并重新执行；20s完成窗口包含检测和退避，不把RecoverInterval误当总恢复时间 |
 | F04、A03 | [基础设施记录](reports/infrastructure-20261014.txt)：AOF崩溃重启95个Hash均恢复，RTO 119.3ms；RDB快照恢复95个Hash，RTO 109.8ms；三Sentinel切换前核实两个副本已应用水位99，100个确认任务均保留，新主可入队，RTO 1.607s。实测丢失0；异步复制不保证生产零RPO |
+| F04存活Worker | [真实重启记录](reports/worker-restart-20261014.txt)：Redis停机超过Lease后旧Handler被取消；原Worker重连并完成Recover→真实退避→Forward→新attempt，完整恢复16.180s；迟到旧Handler不能改新状态，race通过 |
 | F05、G02技术演练 | 真实noeviction OOM返回INTERNAL并保留已有任务；恢复容量后Inspector健康；TLS可信CA/主机名、ACL命名空间权限通过，错误主机名/越权写拒绝；实际Cluster节点被初始化拒绝 |
 | P02、P04 | [原始性能报告](reports/perf-20261014.json)：99999次Dequeue单独采样，Lua p99桶上界0.066ms，API p99 0.160292ms；10万Lease集中到期，100000扫描/100000转换，203轮、每轮最多500条，耗时19.154s，调用p99 0.360875ms；Inspector核对10万任务无异常 |
 | P03容量子项 | 性能实例Redis峰值159347712bytes，占805306368bytes预算19.79%，无eviction；长稳峰值/停止生产后排空结果待结束记录 |
