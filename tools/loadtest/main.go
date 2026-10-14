@@ -111,7 +111,7 @@ func worker() error {
 			emit(event{Error: "metrics scrape failed"})
 			return
 		}
-		emit(event{Metrics: r.Body.String(), Goroutines: runtime.NumGoroutine()})
+		emit(event{Metrics: r.Body.String(), Goroutines: goroutineCount()})
 	}
 	for {
 		select {
@@ -124,6 +124,14 @@ func worker() error {
 		}
 	}
 }
+func goroutineCount() int {
+	// A nonempty profile buffer synchronizes with GC; NumGoroutine (or a nil
+	// buffer) can temporarily count dead goroutines while their stacks are freed.
+	var records [1]runtime.StackRecord
+	n, _ := runtime.GoroutineProfile(records[:])
+	return n
+}
+
 func infoInt(raw, key string) int64 {
 	for _, line := range strings.Split(raw, "\n") {
 		if strings.HasPrefix(line, key+":") {

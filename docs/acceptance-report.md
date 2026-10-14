@@ -35,13 +35,15 @@ P01整体失败：Worker 5在约2310s样本中goroutine由167升至299，前后�
 
 补充[短时诊断记录](reports/goroutine-diagnostic-20261014.json)：15秒/8秒/8秒的10进程×80槽测试，包含加速连接空闲淘汰和加密采样；28800/16200/7400任务分别全部排空，无重复或索引异常，未采到超过199的堆栈。此结果没有复现首轮峰值，不能关闭P01；生产代码及验收断言未修改。
 
+最新[goroutine 专项记录](reports/p01-goroutine-20261014.md)：已复现并修复负载工具在 GC 期间把已退出协程计入峰值的统计缺陷，增加真实 GC 与 80 个阻塞协程回归，原阈值及生产代码不变。历史 299 无当时堆栈，不能追溯确定其全部来源。用户随后要求清理并提交；10 分钟稳定性验证未启动，60 分钟完整复验保持 NOT_RUN / PENDING。
+
 ## 待完成
 
 任务时长边界补充（A01/X02/X06、C01）：修复损坏 timeout_ms 在领取后溢出为负值，以及 retention_ms 读写范围不一致。Lua 写前校验与 Inspector 按 Go time.Duration 的整数毫秒上限收敛；合法最大值闭环、非法值拒绝且 DUMP 不变、四包 race 回归通过，见 [验证记录](reports/task-duration-20261014.txt)。
 
 X06 后续补充：Inspector 现在能报告 Lease/Retry/Archived/Completed 的非有限、负、小数及超出 2^53−1 的 score，以及 Hash 超范围数值和负 pending_since。新增真实 Redis 用例在修复前复现漏报，修复后 Inspector 与48例故障矩阵 race 回归通过，DUMP 对比确认只读；见 [验证记录](reports/inspector-numeric-20261014.txt)。此修复不改变下面的生产门禁状态。
 
-- P01：goroutine瞬时峰值原因未确认，原长稳验收失败；用户限制后续测试时长，完整长稳复验不执行。
+- P01：已修复可重复的采样误报，历史峰值的直接取证仍缺失；原长稳验收失败，完整复验 NOT_RUN / PENDING。
 - 最终交付门禁签收；G01完整真实Redis/race回归已通过，见 [原始输出](reports/regression-20261014.txt)。
 - 生产目标环境验收与真实业务灰度：未执行，不属于本次本地演练通过范围。
 

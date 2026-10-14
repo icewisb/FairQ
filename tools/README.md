@@ -34,7 +34,7 @@ go run ./tools/loadtest -redis 127.0.0.1:16400 \
 
 默认持续负载时间为30秒，预置和排空另计。默认规模仍为1000 Group、10万积压、10进程×80槽，日常验证请使用上面的小规模参数。更长的持续负载需显式设置 `-duration`；不会由普通 `go test` 自动启动。
 
-退出码0表示本次运行的正确性检查通过。报告中的 `Passed` 专指原 P01 完整长稳门禁，短测保持 false；30秒短测也不覆盖60秒后才开始的 goroutine 增长判断。首轮 P01 的 [失败报告](../docs/reports/soak-20261014-failed.json) 保留，当前峰值问题暂缓，不能用短测宣称完整生产验收通过。
+退出码0表示本次运行的正确性检查通过。报告中的 `Passed` 专指原 P01 完整长稳门禁，短测保持 false；30秒短测也不覆盖60秒后才开始的 goroutine 增长判断。goroutine 采样使用非空缓冲的运行时 profile，避免 GC 回收已退出协程时的计数误报，原基线+32阈值不变，见 [专项记录](../docs/reports/p01-goroutine-20261014.md)。首轮 P01 的 [失败报告](../docs/reports/soak-20261014-failed.json) 保留，完整长稳复验仍为 NOT_RUN / PENDING。
 
 ## 性能验收
 
