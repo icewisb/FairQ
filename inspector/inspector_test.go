@@ -200,9 +200,8 @@ func TestInspectorReadOnlyAndCoverage(t *testing.T) {
 	if !reflect.DeepEqual(before, snapshot(t, c)) {
 		t.Fatal("inspection repaired data")
 	}
-	ctx, cancel := context.WithTimeout(ctx, time.Nanosecond)
-	defer cancel()
-	time.Sleep(time.Millisecond)
+	ctx, cancel := context.WithCancel(ctx)
+	cancel()
 	if _, err = in.Check(ctx); err == nil {
 		t.Fatal("ignored context")
 	}

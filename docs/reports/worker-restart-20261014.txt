@@ -1,5 +1,0 @@
-=== RUN   TestWorkerSurvivesRedisRestart
-    restart_worker_test.go:84: live Worker Redis restart: handler_cancel_and_recovery_RTO=16.179639125s retry_at=1791966642079 attempts=2; includes actual 15s+jitter backoff
---- PASS: TestWorkerSurvivesRedisRestart (16.34s)
-PASS
-ok  	fairq/tests/acceptance	18.606s

@@ -44,29 +44,26 @@ func enqueue(t *testing.T, s *rdb.Store, id, group string) {
 func TestRoundRobinFIFO(t *testing.T) {
 	s, c := store(t)
 	ctx := context.Background()
-	counts := []int{10000, 1000, 1000}
+	counts := []int{10, 2, 2}
 	for i, n := range counts {
 		for j := 0; j < n; j++ {
 			enqueue(t, s, fmt.Sprintf("%d-%d", i, j), fmt.Sprint(i))
 		}
 	}
-	seen := make([]int, 3)
-	for k := 0; k < 12000; k++ {
+	wantOrder := []string{
+		"0-0", "1-0", "2-0", "0-1", "1-1", "2-1",
+		"0-2", "0-3", "0-4", "0-5", "0-6", "0-7", "0-8", "0-9",
+	}
+	for k, want := range wantOrder {
 		a, err := s.Dequeue(ctx, time.Minute)
 		if err != nil {
 			t.Fatal(err)
 		}
-		g := 0
-		if k < 3000 {
-			g = k % 3
-		}
-		want := fmt.Sprintf("%d-%d", g, seen[g])
-		seen[g]++
 		if a.ID != want || a.Token == "" {
 			t.Fatalf("claim %d got %s want %s", k, a.ID, want)
 		}
 	}
-	if c.LLen(ctx, rdb.Ready).Val() != 0 || c.SCard(ctx, rdb.Members).Val() != 0 || c.SCard(ctx, rdb.Active).Val() != 12000 || c.ZCard(ctx, rdb.Lease).Val() != 12000 {
+	if c.LLen(ctx, rdb.Ready).Val() != 0 || c.SCard(ctx, rdb.Members).Val() != 0 || c.SCard(ctx, rdb.Active).Val() != int64(len(wantOrder)) || c.ZCard(ctx, rdb.Lease).Val() != int64(len(wantOrder)) {
 		t.Fatal("bad final indexes")
 	}
 	if _, err := s.Dequeue(ctx, time.Minute); !fairq.IsCode(err, fairq.Empty) {

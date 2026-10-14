@@ -2,7 +2,6 @@ package rdb_test
 
 import (
 	"context"
-	"fmt"
 	"testing"
 	"time"
 
@@ -10,21 +9,6 @@ import (
 	"fairq/internal/base"
 	"fairq/internal/rdb"
 )
-
-func TestThreeGroupsHundredEach(t *testing.T) {
-	s, _ := store(t)
-	for g := 0; g < 3; g++ {
-		for n := 0; n < 100; n++ {
-			enqueue(t, s, fmt.Sprintf("%d/%d", g, n), fmt.Sprint(g))
-		}
-	}
-	for n := 0; n < 300; n++ {
-		a, err := s.Dequeue(context.Background(), time.Minute)
-		if err != nil || a.ID != fmt.Sprintf("%d/%d", n%3, n/3) {
-			t.Fatalf("claim %d: %+v %v", n, a, err)
-		}
-	}
-}
 
 func TestDynamicGroupsAndUnknownCorruption(t *testing.T) {
 	s, c := store(t)

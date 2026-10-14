@@ -4,7 +4,7 @@ FairQ 是一个 Go + Redis 任务队列，按 Group 公平轮转领取任务。�
 
 普通单 FIFO 队列中，一个租户的大量积压可能把其他租户排在后面。FairQ 让持续有任务的 Group 交替获得领取机会。例如 A、B、C 都非空时，领取顺序循环为 A → B → C；A 有更多任务也不会占据整个队首。公平性按 **Redis 成功领取顺序** 判断，不保证执行槽位、CPU 时间或完成顺序均分。
 
-当前为发布前代码：本地功能、并发和故障测试有记录，但历史 60 分钟长稳失败，完整复验及生产灰度未完成。不要将仓库公开或短测通过理解为生产可靠性已经验证。当前状态见 [发布审计](docs/release-audit.md) 和 [验收报告](docs/acceptance-report.md)。
+**项目状态：开发中。** 尚未发布稳定版本；历史 60 分钟长稳测试失败，完整复验和生产灰度尚未完成。
 
 ## 特性
 
@@ -14,20 +14,29 @@ FairQ 是一个 Go + Redis 任务队列，按 Group 公平轮转领取任务。�
 - 失败重试、租约过期恢复、归档；可选成功任务保留。
 - 支持 Context 取消与优雅关闭；只读 Inspector 和 Prometheus 指标。
 
-## 安装与 Quick Start
+## 快速开始
 
 需要 Go 1.24+ 和独立的 Redis 单实例或 Sentinel。当前真实验证版本是 **Redis 8.0.2（含 TLS）**；不声明未测试版本的兼容性，不支持 Redis Cluster。Redis 使用 `noeviction`，并按业务需要配置持久化、备份和 ACL/TLS。
 
-当前 `go.mod` 为本地模块 `fairq`，尚未确定公开模块路径或发布版本，因此暂不提供 `go get` 安装命令。在仓库根目录运行：
+公开模块路径尚未确定，当前通过本地源码试用。在仓库根目录下载依赖：
 
 ```sh
 go mod download
-# 另一个终端启动专用演示 Redis，不要连接已有业务实例。
+```
+
+在单独终端启动一个可丢弃的 Redis 实例：
+
+```sh
 redis-server --bind 127.0.0.1 --port 16380 --save '' --appendonly no --maxmemory 256mb --maxmemory-policy noeviction
+```
+
+回到仓库目录运行示例：
+
+```sh
 go run ./examples/basic -redis 127.0.0.1:16380
 ```
 
-看到 `handled task ...` 后按 Ctrl-C，Worker 会优雅关闭。这个 Redis 命令仅用于可丢弃的本地演示，未启用持久化。完整可运行源码在 [examples/basic](examples/basic/main.go)，其入队、处理、Completed 状态和关闭路径也有真实 Redis 测试。
+看到 `handled task ...` 后按 Ctrl-C，Worker 会优雅关闭。这个 Redis 命令仅用于可丢弃的本地演示，未启用持久化。完整源码见 [examples/basic](examples/basic/main.go)。
 
 在另一个本地 Go 项目试用时，可以使用本地替换（路径换成实际克隆目录）：
 
@@ -67,7 +76,17 @@ func serve(ctx context.Context, options redis.UniversalOptions) error {
 
 示例仅打印任务 ID。业务 Handler 应按任务或业务请求 ID 幂等执行副作用，并响应 Context 取消。Handler 的错误文本会存入 Redis Task Hash，应由业务脱敏。
 
-默认 Lease 30s、Heartbeat 10s、Recover 10s、Forward 1s、空轮询 1s。`Concurrency` 和 `ShutdownTimeout` 必须显式为正。`MaxRetry=0` 使用默认25次重试，第26次失败归档；退避从15s指数增长到1h，再加最多10%正抖动。`Timeout=0` 不限制 Handler 时长；成功默认删除，`Retention>0` 保留至到期。duration 必须是整数毫秒；Group 为1–256字节 UTF-8，Payload 默认上限256KiB。
+常用配置：
+
+| 配置 | 行为 |
+|---|---|
+| `GroupKey` | 必填，1–256 字节 UTF-8；通常使用租户或业务分组 ID |
+| `Concurrency` / `ShutdownTimeout` | 必须显式设置为正数 |
+| `MaxRetry` | `0` 使用默认 25 次重试，第 26 次失败归档 |
+| `Timeout` | `0` 不限制 Handler 时长 |
+| `Retention` | `0` 在成功后删除任务；正值保留成功记录至到期 |
+
+Payload 默认上限为 256 KiB；duration 必须是整数毫秒。租约、重试与状态转换详见 [架构说明](docs/architecture.md)。
 
 ## 可靠性与限制
 
@@ -94,8 +113,15 @@ go test -race ./... -count=1
 go vet ./...
 ```
 
-普通 `go test` 不启动 60 分钟长稳。[测试指南](docs/test-environment.md) 说明环境、DB隔离和故障演练；[工具说明](tools/README.md) 区分负载/性能工具与业务库。更多细节见 [实现契约](docs/contracts.md)、[验收矩阵](docs/acceptance.md)、[v1.4 历史设计基线](docs/fairq-final-technical-design-v1.4.md)。设计中的 API 为示意，当前 API 以源码为准；原文保留，不据其复选框推断当前验证状态。
+普通 `go test` 不启动长稳测试。提交改动时，请为行为变化提供可复现用例，并运行受影响的测试；涉及并发和共享状态时运行 race 检查。完整环境说明见 [开发测试指南](docs/test-environment.md)。
+
+## 文档
+
+- [架构说明](docs/architecture.md)：公平调度、任务状态与可靠性边界。
+- [运维手册](docs/runbook.md)：部署、监控、故障处理和备份恢复。
+- [开发测试指南](docs/test-environment.md)：本地测试环境与回归命令。
+- [测试工具](tools/README.md)：可选负载与性能测试。
 
 ## License
 
-本项目采用 [MIT License](LICENSE)。公开模块路径待 GitHub 仓库确定后修改。
+本项目采用 [MIT License](LICENSE)。
