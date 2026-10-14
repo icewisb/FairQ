@@ -66,6 +66,8 @@ Lease 有效当且仅当 `deadline > RedisNow`，等于即过期；Retry/清理�
 
 Go 使用固定脚本和参数列表，不拼接用户脚本。Lua RESP 数组首项为 code；`OK` 只表示成功标记，不是新增错误码。数据项为字符串/整数，禁止用 nil 造成数组截断。Redis 传输/脚本异常统一为 INTERNAL，保留 underlying error 和操作名供脱敏诊断。
 
+实现使用统一 KEYS 槽位 `[Ready,Members,Active,Lease,Retry,Archived,Completed,BadRefs]`；下列各转换的 KEYS 列表描述逻辑读写集合，Task/Pending 由固定前缀和已校验参数派生，不增加 Key。
+
 每次脚本读取一次 TIME：`sec*1000+floor(usec/1000)`。先验证所有将读写 Key 类型（不存在可接受），参数、Hash 字段、目标索引不冲突，再写入。业务前置条件失败无写入。同一次脚本的写入不会被其它客户端插入；不可据此宣称异常时回滚。
 
 所有变更脚本关闭客户端透明网络重试。NOSCRIPT 后加载再执行是缓存恢复，不重试未知已执行请求。结果未知时查询、告警或交 Recoverer；不能通过重新运行 Handler 获得结果。Heartbeat 未确认成功不延长本地保守所有权窗口；以请求发出时的单调时间＋LeaseDuration作为最晚本地有效界，超过即取消，迟到响应不得复活已取消尝试。Redis 判定仍是最终权威。
