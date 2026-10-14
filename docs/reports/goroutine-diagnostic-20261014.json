@@ -1,0 +1,166 @@
+{
+  "SourceCommit": "294b731",
+  "Method": "Temporary copy of cmd/fairq-load/main.go adds a worker goroutine sampler and pprof.Lookup(\"goroutine\").WriteTo(file, 1) at the threshold. No production changes. Separate files per worker PID.",
+  "Limitations": "No threshold-triggered profile files observed. Sampling can miss short peaks; these runs do not reproduce or explain the 3600s failed soak. Redis used_memory_peak includes prior runs.",
+  "Runs": [
+    {
+      "RequestedDurationSeconds": 15,
+      "ConnMaxIdleTime": "default 30m",
+      "HandlerDuration": "10ms",
+      "DiagnosticSamplingInterval": "5ms",
+      "ProfileTrigger": "after 2s, runtime.NumGoroutine() > 199",
+      "ProfileFilesObserved": 0,
+      "Report": {
+        "Started": "2026-10-14T09:23:58.009328Z",
+        "DurationSeconds": 15.300339792,
+        "DrainSeconds": 1.00226525,
+        "Groups": 1000,
+        "Backlog": 1000,
+        "Processes": 10,
+        "Slots": 80,
+        "PayloadBytes": 256,
+        "Accepted": 28800,
+        "Handled": 28800,
+        "Duplicates": 0,
+        "PeakRedisBytes": 150837824,
+        "MemoryBudgetBytes": 805306368,
+        "CommandCount": 210370,
+        "CommandAbove30ms": 490,
+        "Samples": [
+          {
+            "ElapsedSeconds": 1.278484833,
+            "Accepted": 3600,
+            "Handled": 1800,
+            "UsedMemory": 150837824,
+            "WorkerGoroutines": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "Errors": null,
+        "Inspector": {
+          "Complete": true,
+          "CheckedTasks": 0,
+          "CheckedPending": 0,
+          "Issues": null
+        },
+        "Passed": false
+      }
+    },
+    {
+      "RequestedDurationSeconds": 8,
+      "ConnMaxIdleTime": "50ms",
+      "HandlerDuration": "10ms",
+      "DiagnosticSamplingInterval": "5ms",
+      "ProfileTrigger": "after 2s, runtime.NumGoroutine() > 199",
+      "ProfileFilesObserved": 0,
+      "Report": {
+        "Started": "2026-10-14T09:24:48.28262Z",
+        "DurationSeconds": 8.340035375,
+        "DrainSeconds": 1.001613584,
+        "Groups": 1000,
+        "Backlog": 1000,
+        "Processes": 10,
+        "Slots": 80,
+        "PayloadBytes": 256,
+        "Accepted": 16200,
+        "Handled": 16200,
+        "Duplicates": 0,
+        "PeakRedisBytes": 150837824,
+        "MemoryBudgetBytes": 805306368,
+        "CommandCount": 162745,
+        "CommandAbove30ms": 1635,
+        "Samples": [
+          {
+            "ElapsedSeconds": 1.3513804999999999,
+            "Accepted": 3600,
+            "Handled": 1800,
+            "UsedMemory": 150837824,
+            "WorkerGoroutines": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "Errors": null,
+        "Inspector": {
+          "Complete": true,
+          "CheckedTasks": 0,
+          "CheckedPending": 0,
+          "Issues": null
+        },
+        "Passed": false
+      }
+    },
+    {
+      "RequestedDurationSeconds": 8,
+      "ConnMaxIdleTime": "50ms",
+      "HandlerDuration": "1s",
+      "DiagnosticSamplingInterval": "100us",
+      "ProfileTrigger": "after 2s, runtime.NumGoroutine() > 199",
+      "ProfileFilesObserved": 0,
+      "Report": {
+        "Started": "2026-10-14T09:26:06.544589Z",
+        "DurationSeconds": 8.129961334,
+        "DrainSeconds": 2.002991292,
+        "Groups": 1000,
+        "Backlog": 1000,
+        "Processes": 10,
+        "Slots": 80,
+        "PayloadBytes": 256,
+        "Accepted": 7400,
+        "Handled": 7400,
+        "Duplicates": 0,
+        "PeakRedisBytes": 150837824,
+        "MemoryBudgetBytes": 805306368,
+        "CommandCount": 45824,
+        "CommandAbove30ms": 848,
+        "Samples": [
+          {
+            "ElapsedSeconds": 1.06794125,
+            "Accepted": 1815,
+            "Handled": 15,
+            "UsedMemory": 150837824,
+            "WorkerGoroutines": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "Errors": null,
+        "Inspector": {
+          "Complete": true,
+          "CheckedTasks": 0,
+          "CheckedPending": 0,
+          "Issues": null
+        },
+        "Passed": false
+      }
+    }
+  ]
+}

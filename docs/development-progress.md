@@ -5,7 +5,7 @@
 - 当前阶段：7 生产验收未关闭（故障/安全/性能通过，首轮长稳因goroutine峰值失败；不再运行一小时测试）。
 - 已完成：完整复核v1.4；七项契约决议；Lua协议、数据不变量、状态/错误表、全量验收映射；原文归档。
 - 已通过：阶段0文档链接/原文SHA256检查；阶段1 `FAIRQ_TEST_REDIS=127.0.0.1:16379 go test ./...` 与 `go test -race ./...`，真实Redis 8.0.2，100并发入队/去重、查询、校验无写入、错误返回ID、Cluster配置拒绝。
-- 最近成功Commit：`896c778 test(security): verify ACL key isolation with an allowed command`；本次提交以git历史为准。
+- 最近成功Commit：`294b731 test(load): default to short runs and preserve failed soak evidence`；本次提交以git历史为准。
 - 未完成：P01 goroutine峰值定位及生产目标环境/业务灰度验收；本机Sentinel真实切换已通过。
 - 已知边界：Hash存续期去重；业务At-least-once幂等；Sentinel非零RPO；运行时Lua错误不回滚。
 - 阻塞：无已确认P0架构阻塞。codebase-memory索引服务启动失败，已直接检查源文件；后续图覆盖不可用时使用源文件核验。隔离Docker容器 fairq-dev-01a13941，127.0.0.1:16379；测试显式选用DB1..15，禁止指向生产。
@@ -56,3 +56,11 @@
 压测工具默认持续负载时间已改为30秒，日常小规模命令见 test-environment.md；预置与排空另计时间。未改变P01规模、时长和goroutine断言，也未修改生产Worker代码。
 
 本次验证：`go test -race ./cmd/fairq-load -count=1` 通过；省略duration参数的真实Redis短测持续30.033s，10 Group/2进程×4槽、积压100，3348入队/3348执行，重复0、错误0、排空1.001s、Inspector无异常（精确时间以 reports/smoke-20261014.json 为准）。`Passed=false` 明确表示没有通过完整P01；不覆盖goroutine峰值原因。该Redis沿用首轮实例，used_memory_peak为实例历史峰值，不能归因于本次小负载。
+
+## 短时峰值诊断（2026-10-14）
+
+在294b731的负载工具临时副本中增加goroutine采样：启动2秒后超过199即写pprof堆栈，保持10独立进程×80槽/1000 Group，积压改为1000。三次真实Redis运行：默认连接空闲期+Handler10ms持续15秒；连接空闲期50ms+Handler10ms持续8秒；连接空闲期50ms+Handler1s持续8秒（采样由5ms加密到100µs）。原始结果见 reports/goroutine-diagnostic-20261014.json。
+
+三次分别28800/16200/7400任务全部完成，重复0、错误0、Inspector无异常，均未产生阈值触发的堆栈文件。采样可能遗漏短峰值，未复现不等于修复或证明没有问题。临时诊断源码/可执行文件已移除，生产代码未改，原P01失败保持。codebase-memory再次索引失败，相关路径覆盖不可用，直接读取源文件核验。
+
+当前诊断限制：没有首轮峰值堆栈，短场景尚不能稳定复现；无法有依据地修改生产实现。下一步需可复现该峰值的短场景或峰值堆栈，不继续盲目重复短测，也不启动一小时复验。目标环境验收仍需要外部环境授权。
