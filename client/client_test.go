@@ -101,3 +101,49 @@ func TestRejectClusterOptions(t *testing.T) {
 		t.Fatal("cluster accepted")
 	}
 }
+
+func TestTaskIDDedupEndsWhenHashIsDeleted(t *testing.T) {
+	testutil.Redis(t, 1)
+	ctx := context.Background()
+	opts := testutil.Options(t, 1)
+	producer, err := client.New(ctx, client.Config{Redis: opts})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer producer.Close()
+	store, err := rdb.New(ctx, opts)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer store.Close()
+	var previous rdb.Attempt
+	for i := 0; i < 3; i++ {
+		task := fairq.Task{ID: "stable", Type: "test"}
+		enq := fairq.EnqueueOptions{GroupKey: "g"}
+		if _, err = producer.Enqueue(ctx, task, enq); err != nil {
+			t.Fatal(err)
+		}
+		if _, err = producer.Enqueue(ctx, task, enq); !fairq.IsCode(err, fairq.TaskIDConflict) {
+			t.Fatal(err)
+		}
+		attempt, e := store.Dequeue(ctx, time.Minute)
+		if e != nil {
+			t.Fatal(e)
+		}
+		if i > 0 {
+			if attempt.Token == previous.Token {
+				t.Fatal("reused execution token")
+			}
+			if err = store.Done(ctx, previous); !fairq.IsCode(err, fairq.StateConflict) {
+				t.Fatal("old task generation could finish new task", err)
+			}
+		}
+		if err = store.Done(ctx, attempt); err != nil {
+			t.Fatal(err)
+		}
+		if _, err = producer.GetTask(ctx, task.ID); !errors.Is(err, fairq.ErrTaskNotFound) {
+			t.Fatal(err)
+		}
+		previous = attempt
+	}
+}

@@ -44,6 +44,7 @@ func TestMaintenanceChild(t *testing.T) {
 	}
 	defer s.Close()
 	m := maint(s, kind)
+	testutil.ChildBarrier(t)
 	if kind == "retry" {
 		seed(t, s, "new-"+fmt.Sprint(os.Getpid()))
 	}
@@ -65,13 +66,14 @@ func TestMaintenanceChild(t *testing.T) {
 
 func children(t *testing.T, kind string) {
 	t.Helper()
+	barrier := t.TempDir()
 	var wg sync.WaitGroup
 	for i := 0; i < 10; i++ {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
 			cmd := exec.Command(os.Args[0], "-test.run=^TestMaintenanceChild$", "-test.timeout=60s")
-			cmd.Env = append(os.Environ(), "FAIRQ_MAINT_CHILD="+kind)
+			cmd.Env = append(os.Environ(), "FAIRQ_MAINT_CHILD="+kind, "FAIRQ_TEST_BARRIER="+barrier)
 			out, err := cmd.CombinedOutput()
 			if err != nil {
 				t.Errorf("child %v %s", err, out)
@@ -84,6 +86,7 @@ func children(t *testing.T, kind string) {
 			}
 		}()
 	}
+	testutil.ReleaseBarrier(t, barrier, 10)
 	wg.Wait()
 }
 

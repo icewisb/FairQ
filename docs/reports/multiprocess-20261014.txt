@@ -1,0 +1,32 @@
+=== RUN   TestTaskIDDedupEndsWhenHashIsDeleted
+--- PASS: TestTaskIDDedupEndsWhenHashIsDeleted (0.01s)
+PASS
+ok  	fairq/client	2.272s
+=== RUN   TestMultiProcessClaims
+--- PASS: TestMultiProcessClaims (1.46s)
+PASS
+ok  	fairq/internal/rdb	4.751s
+=== RUN   TestTenProcessMaintenance
+    maintenance_test.go:83: lease STATS:988/3
+    maintenance_test.go:83: lease STATS:991/223
+    maintenance_test.go:83: lease STATS:989/0
+    maintenance_test.go:83: lease STATS:986/3
+    maintenance_test.go:83: lease STATS:991/234
+    maintenance_test.go:83: lease STATS:990/1
+    maintenance_test.go:83: lease STATS:989/0
+    maintenance_test.go:83: lease STATS:991/334
+    maintenance_test.go:83: lease STATS:991/1
+    maintenance_test.go:83: lease STATS:988/201
+    maintenance_test.go:83: retry STATS:993/100
+    maintenance_test.go:83: retry STATS:994/27
+    maintenance_test.go:83: retry STATS:994/31
+    maintenance_test.go:83: retry STATS:994/0
+    maintenance_test.go:83: retry STATS:994/323
+    maintenance_test.go:83: retry STATS:994/0
+    maintenance_test.go:83: retry STATS:994/1
+    maintenance_test.go:83: retry STATS:994/3
+    maintenance_test.go:83: retry STATS:994/100
+    maintenance_test.go:83: retry STATS:994/415
+--- PASS: TestTenProcessMaintenance (3.45s)
+PASS
+ok  	fairq/server	6.229s

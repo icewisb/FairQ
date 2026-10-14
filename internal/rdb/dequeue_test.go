@@ -149,11 +149,15 @@ func TestClaimProcess(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer s.Close()
-	var wg sync.WaitGroup
+	var wg, ready sync.WaitGroup
+	start := make(chan struct{})
 	for i := 0; i < 80; i++ {
 		wg.Add(1)
+		ready.Add(1)
 		go func() {
 			defer wg.Done()
+			ready.Done()
+			<-start
 			for {
 				a, err := s.Dequeue(context.Background(), time.Minute)
 				if fairq.IsCode(err, fairq.Empty) {
@@ -167,6 +171,9 @@ func TestClaimProcess(t *testing.T) {
 			}
 		}()
 	}
+	ready.Wait()
+	testutil.ChildBarrier(t)
+	close(start)
 	wg.Wait()
 }
 
@@ -176,16 +183,18 @@ func TestMultiProcessClaims(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		enqueue(t, s, fmt.Sprint(i), fmt.Sprint(i%10))
 	}
+	barrier := t.TempDir()
 	cmds := make([]*exec.Cmd, 10)
 	var wg sync.WaitGroup
 	outputs := make([][]byte, 10)
 	errs := make([]error, 10)
 	for i := range cmds {
 		cmds[i] = exec.Command(os.Args[0], "-test.run=^TestClaimProcess$", "-test.timeout=60s")
-		cmds[i].Env = append(os.Environ(), "FAIRQ_CLAIM_CHILD=1")
+		cmds[i].Env = append(os.Environ(), "FAIRQ_CLAIM_CHILD=1", "FAIRQ_TEST_BARRIER="+barrier)
 		wg.Add(1)
 		go func(i int) { defer wg.Done(); outputs[i], errs[i] = cmds[i].CombinedOutput() }(i)
 	}
+	testutil.ReleaseBarrier(t, barrier, 10)
 	wg.Wait()
 	seen := map[string]bool{}
 	for i, out := range outputs {

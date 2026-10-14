@@ -5,7 +5,7 @@
 - 当前阶段：7 生产验收进行中（故障/安全/性能通过，60分钟长稳运行中）。
 - 已完成：完整复核v1.4；七项契约决议；Lua协议、数据不变量、状态/错误表、全量验收映射；原文归档。
 - 已通过：阶段0文档链接/原文SHA256检查；阶段1 `FAIRQ_TEST_REDIS=127.0.0.1:16379 go test ./...` 与 `go test -race ./...`，真实Redis 8.0.2，100并发入队/去重、查询、校验无写入、错误返回ID、Cluster配置拒绝。
-- 最近成功Commit：`47d4f94 feat(ops): add read-only inspector retention cleanup and metrics`。
+- 最近成功Commit：`20444b4 test(acceptance): add fault failover security and load verification`。
 - 未完成：阶段7；Sentinel真实切换/连接验收在阶段7，不把配置支持当作故障演练通过。
 - 已知边界：Hash存续期去重；业务At-least-once幂等；Sentinel非零RPO；运行时Lua错误不回滚。
 - 阻塞：无已确认P0架构阻塞。codebase-memory索引服务启动失败，已直接检查源文件；后续图覆盖不可用时使用源文件核验。隔离Docker容器 fairq-dev-01a13941，127.0.0.1:16379；测试显式选用DB1..15，禁止指向生产。
@@ -36,3 +36,5 @@
 - 全量 `FAIRQ_TEST_REDIS=127.0.0.1:16380 FAIRQ_REDIS_SERVER=/private/tmp/fairq-native-redis/redis-8.0.2/src/redis-server go test -race ./... -count=1` 通过；新增工具race与go vet通过。基础设施实测原始记录见 reports/infrastructure-20261014.txt。
 - reports/perf-20261014.json：Dequeue Lua p99上界0.066ms、API p99 0.160292ms；10万Lease恢复19.154s、p99 0.360875ms、100000扫描/转换、单tick≤500；159347712 bytes峰值，预算805306368 bytes。Inspector完整检查10万任务，无异常。
 - 长稳进程由当前会话启动（exec session 19348），地址16400/DB5，日志 /private/tmp/fairq-soak.log，最终报告 docs/reports/soak-20261014.json。进程结束/中断不保证自行续跑；若未满60分钟需重新执行完整长稳，不能用短跑补时间。
+
+- 多进程测试增加仅测试用文件起跑屏障：10进程/800槽全就绪后同时领取；维护器同样同步启动。race目标回归通过，见 reports/multiprocess-20261014.txt。补充默认Done删除后的TaskID复用与旧token不能结束新任务的测试。
