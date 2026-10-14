@@ -9,6 +9,7 @@ import (
 	"math"
 	"strconv"
 	"strings"
+	"time"
 
 	"fairq"
 	"fairq/internal/base"
@@ -294,7 +295,11 @@ func (i *Inspector) Check(ctx context.Context) (Report, error) {
 			}
 			for _, field := range fields {
 				v, err := strconv.ParseInt(h[field], 10, 64)
-				if err != nil || v < 0 || v > 1<<53-1 {
+				limit := int64(base.MaxExactInteger)
+				if field == "timeout_ms" || field == "retention_ms" {
+					limit = int64((1<<63 - 1) / time.Millisecond)
+				}
+				if err != nil || v < 0 || v > limit {
 					add("FIELD", key, id, field)
 				}
 			}

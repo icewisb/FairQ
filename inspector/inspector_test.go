@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"reflect"
+	"strconv"
 	"testing"
 	"time"
 
@@ -112,7 +113,13 @@ func TestCheckInvalidNumericFields(t *testing.T) {
 	defer in.Close()
 	for _, field := range []string{"retry_count", "max_retry", "timeout_ms", "retention_ms", "enqueued_at", "pending_since"} {
 		t.Run(field, func(t *testing.T) {
-			for _, value := range []string{"-1", "9007199254740992", "0.5", "invalid", "0", "9007199254740991"} {
+			maximum := "9007199254740991"
+			tooLarge := "9007199254740992"
+			if field == "timeout_ms" || field == "retention_ms" {
+				maximum = strconv.FormatInt(int64((1<<63-1)/time.Millisecond), 10)
+				tooLarge = strconv.FormatInt(int64((1<<63-1)/time.Millisecond)+1, 10)
+			}
+			for _, value := range []string{"-1", tooLarge, "0.5", "invalid", "0", maximum} {
 				if err := c.HSet(ctx, rdb.TaskKey("numeric"), field, value).Err(); err != nil {
 					t.Fatal(err)
 				}
@@ -122,7 +129,7 @@ func TestCheckInvalidNumericFields(t *testing.T) {
 					t.Fatal(report, err)
 				}
 				want := 1
-				if value == "0" || value == "9007199254740991" {
+				if value == "0" || value == maximum {
 					want = 0
 				}
 				if len(report.Issues) != want || (want == 1 && (report.Issues[0].Kind != "FIELD" || report.Issues[0].Detail != field)) {

@@ -37,6 +37,8 @@ P01整体失败：Worker 5在约2310s样本中goroutine由167升至299，前后�
 
 ## 待完成
 
+任务时长边界补充（A01/X02/X06、C01）：修复损坏 timeout_ms 在领取后溢出为负值，以及 retention_ms 读写范围不一致。Lua 写前校验与 Inspector 按 Go time.Duration 的整数毫秒上限收敛；合法最大值闭环、非法值拒绝且 DUMP 不变、四包 race 回归通过，见 [验证记录](reports/task-duration-20261014.txt)。
+
 X06 后续补充：Inspector 现在能报告 Lease/Retry/Archived/Completed 的非有限、负、小数及超出 2^53−1 的 score，以及 Hash 超范围数值和负 pending_since。新增真实 Redis 用例在修复前复现漏报，修复后 Inspector 与48例故障矩阵 race 回归通过，DUMP 对比确认只读；见 [验证记录](reports/inspector-numeric-20261014.txt)。此修复不改变下面的生产门禁状态。
 
 - P01：goroutine瞬时峰值原因未确认，原长稳验收失败；用户限制后续测试时长，完整长稳复验不执行。

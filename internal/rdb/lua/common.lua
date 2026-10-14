@@ -8,6 +8,12 @@ local function number(s)
     if not n or n < 0 or n > 9007199254740991 or n ~= math.floor(n) then return nil end
     return n
 end
+local function task_duration(s)
+    local n = number(s)
+    -- Go time.Duration stores nanoseconds; persisted task durations are milliseconds.
+    if not n or n > 9223372036854 then return nil end
+    return n
+end
 local function nowms()
     local t = redis.call('TIME')
     return tonumber(t[1])*1000 + math.floor(tonumber(t[2])/1000)

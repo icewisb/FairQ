@@ -4,7 +4,7 @@ local now=nowms()
 local code=owner(id,token,now)
 if code~='OK' then return {code} end
 local task=taskkey(id)
-local retention=number(redis.call('HGET',task,'retention_ms'))
+local retention=task_duration(redis.call('HGET',task,'retention_ms'))
 if not retention or now+retention>9007199254740991 then return {'INTERNAL'} end
 redis.call('SREM',active,id)
 redis.call('ZREM',lease,id)

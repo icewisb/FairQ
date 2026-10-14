@@ -39,6 +39,8 @@ Hash 必需字段：`msg`（JSON，type 字符串、payload 标准 base64）、`
 
 Task.Type 非空；Payload 原始字节默认≤256KiB，JSON/base64 的额外内存计入容量测试。正 duration 必须可表示为正整数毫秒，Lua 数值计算不超过精确整数范围；禁止负数、溢出、非有限值。msg 的解码在 Go 进行，失败保留原始 msg。错误文本与日志不包含 Payload 或完整 token。
 
+`timeout_ms` / `retention_ms` 还必须能无溢出转换为 Go `time.Duration`：最大整数毫秒为 9223372036854。Lua 在入队、领取及完成所需字段的写前校验中执行同一限制；Inspector 对超范围值报告 FIELD。损坏字段不得在任务已转 Active 后才发现溢出。
+
 ## 3. 数据不变量与状态表
 
 - I1：ready 无重复；members 等于 ready 的 Group 集合。

@@ -32,7 +32,7 @@ if bad then
     return {'CORRUPT_REFERENCE'}
 end
 if state~='pending' or redis.call('HGET',task,'group')~=group or not state_indexes(id,'pending') then return {'INTERNAL'} end
-local count,maxretry,timeout,retention=number(redis.call('HGET',task,'retry_count')),number(redis.call('HGET',task,'max_retry')),number(redis.call('HGET',task,'timeout_ms')),number(redis.call('HGET',task,'retention_ms'))
+local count,maxretry,timeout,retention=number(redis.call('HGET',task,'retry_count')),number(redis.call('HGET',task,'max_retry')),task_duration(redis.call('HGET',task,'timeout_ms')),task_duration(redis.call('HGET',task,'retention_ms'))
 if not count or not maxretry or not timeout or not retention then return {'INTERNAL'} end
 local msg=redis.call('HGET',task,'msg') or ''
 local now=nowms()

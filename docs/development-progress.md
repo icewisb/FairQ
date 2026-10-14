@@ -5,7 +5,7 @@
 - 当前阶段：7 生产验收未全部通过；用户已要求暂时搁置goroutine峰值问题，继续其他功能，不再以该问题阻止独立工作。
 - 已完成：完整复核v1.4；七项契约决议；Lua协议、数据不变量、状态/错误表、全量验收映射；原文归档。
 - 已通过：阶段0文档链接/原文SHA256检查；阶段1 `FAIRQ_TEST_REDIS=127.0.0.1:16379 go test ./...` 与 `go test -race ./...`，真实Redis 8.0.2，100并发入队/去重、查询、校验无写入、错误返回ID、Cluster配置拒绝。
-- 最近成功Commit：`73e7a93 docs(handoff): defer goroutine investigation per user direction`；本次提交以git历史为准。
+- 最近成功Commit：`ed5ad18 fix(inspector): detect invalid numeric state and index scores`；本次提交以git历史为准。
 - 未完成：P01 goroutine峰值定位及生产目标环境/业务灰度验收；本机Sentinel真实切换已通过。
 - 已知边界：Hash存续期去重；业务At-least-once幂等；Sentinel非零RPO；运行时Lua错误不回滚。
 - 阻塞：无已确认P0架构阻塞。codebase-memory索引服务启动失败，已直接检查源文件；后续图覆盖不可用时使用源文件核验。隔离Docker容器 fairq-dev-01a13941，127.0.0.1:16379；测试显式选用DB1..15，禁止指向生产。
@@ -14,6 +14,12 @@
 ## 阶段记录
 
 提交粒度补充（2026-10-14）：按完整、可独立验收的功能/修复单元提交，实现、必要测试和验收记录一起提交；不积攒大 commit，也不把零碎修改分别提交。
+
+### 独立缺口修复：任务时长溢出（2026-10-14）
+
+继续核对 v1.4 的必要字段写前校验及 Timeout/Retention 契约，真实 Redis 复现 timeout_ms=9223372036855 被成功领取并转换为负 time.Duration；更大的损坏值还可能在领取已写入后才解析失败。retention_ms 也存在 Lua 接受、GetTask 拒绝的范围不一致。修复公共 Lua 任务时长校验，并用于 Enqueue/Dequeue/Done；超 Go 时长上限返回 INTERNAL 且 DUMP 完全不变。Inspector 同步按 Go 时长上限报告 FIELD；其它数值仍按 Lua 精确整数范围检查。最大合法整数毫秒的入队→领取→完成→查询回归通过。正常公共 API 可表达的合法值范围未缩小，未改变任务状态机或增加 Key。
+
+验证使用本次新建的一次性 Redis 8.0.2，127.0.0.1:16402，DB1..4；client、inspector、internal/rdb、server 全包 race 回归及 go vet ./... 通过，包含多进程领取/维护器、48例故障注入与 Worker 生命周期；见 [验证记录](reports/task-duration-20261014.txt)。codebase-memory 仍无法索引，覆盖不可用，采用源码和调用方检索核验。未重跑独立基础设施、容量或长稳演练，P01与生产灰度状态不变。
 
 ### 独立缺口修复：Inspector 数值对账（2026-10-14）
 

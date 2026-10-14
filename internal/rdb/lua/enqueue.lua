@@ -1,5 +1,5 @@
 local id,group,msg = ARGV[1],ARGV[2],ARGV[3]
-local maxretry,timeout,retention = number(ARGV[4]),number(ARGV[5]),number(ARGV[6])
+local maxretry,timeout,retention = number(ARGV[4]),task_duration(ARGV[5]),task_duration(ARGV[6])
 if not id or id=='' or not group or group=='' or not msg or not maxretry or not timeout or not retention then return {'INTERNAL'} end
 local task,pending=taskkey(id),pendingkey(group)
 if redis.call('EXISTS',task)==1 then return {'TASK_ID_CONFLICT'} end
