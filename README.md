@@ -74,7 +74,7 @@ func serve(ctx context.Context, options redis.UniversalOptions) error {
 - **At-least-once**：租约或连接故障可能导致再次执行。attempt token 保护 Redis 状态，不能阻止外部副作用重复；业务必须幂等。
 - TaskID 去重只持续到 Task Hash 删除；相同 ID 在删除后可再次入队。未知写结果须按原 ID 和业务幂等记录核查。
 - FIFO 指领取顺序；重试恢复后排在该组已有 Pending 后面，不保留原名次。
-- Shutdown 先停领取并继续为在途任务续租；超时取消 Handler、停止续租，保留 Active/Lease 供恢复。忽略取消的 Handler 仍可能继续运行、占用资源和产生副作用。
+- Shutdown 先停领取并继续为在途任务续租；超时取消 Handler、停止续租，保留 Active/Lease 供恢复。忽略取消的 Handler 仍可能继续运行、占用资源和产生副作用。`Concurrency` 限制受管理的执行尝试；运行期间发生任务超时或失权后，槽位会继续领取任务，残留的 Handler 可能累计超过这个数量，因此业务必须响应取消。
 - Sentinel 异步复制不保证零 RPO；Lua 运行时出错不会回滚已执行写入。
 - 固定 `fairq:v1:` 命名空间；多个部署共用一个 DB 就共享队列。无 Cluster、优先级、权重、Cron、DAG、Web UI 或自动修复平台。
 
