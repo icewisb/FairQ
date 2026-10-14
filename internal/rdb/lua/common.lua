@@ -26,3 +26,22 @@ local function group_valid(group)
     if not typ(pending,'list') or not typ(ready,'list') or not typ(members,'set') then return false end
     return (redis.call('LLEN',pending)>0) == (redis.call('SISMEMBER',members,group)==1)
 end
+local function state_indexes(id,state)
+    local a=redis.call('SISMEMBER',active,id)==1
+    local l=redis.call('ZSCORE',lease,id)~=false
+    local r=redis.call('ZSCORE',retry,id)~=false
+    local ar=redis.call('ZSCORE',archived,id)~=false
+    local c=redis.call('ZSCORE',completed,id)~=false
+    if state=='pending' then return not a and not l and not r and not ar and not c end
+    if state=='active' then return a and l and not r and not ar and not c end
+    if state=='retry' then return r and not a and not l and not ar and not c end
+    if state=='archived' then return ar and not a and not l and not r and not c end
+    if state=='completed' then return c and not a and not l and not r and not ar end
+    return false
+end
+local function evidence(op,reason,source,id,group,state,score)
+    if not typ(badrefs,'list') then return false end
+    local record=cjson.encode({at=nowms(),operation=op,reason=reason,source_key=source,task_id=id or '',group=group or '',state=state or '',score=score or ''})
+    local res=redis.pcall('RPUSH',badrefs,record)
+    return type(res)~='table' or not res.err
+end
