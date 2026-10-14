@@ -12,6 +12,34 @@ import (
 	"fairq/internal/rdb"
 )
 
+func TestDequeueRejectsInvalidMetadataBeforeWrite(t *testing.T) {
+	for _, field := range []string{"retry_count", "max_retry", "timeout_ms", "retention_ms"} {
+		for _, value := range []string{"missing", "invalid"} {
+			t.Run(field+"/"+value, func(t *testing.T) {
+				s, c := store(t)
+				ctx := context.Background()
+				enqueue(t, s, "metadata", "g")
+				var err error
+				if value == "missing" {
+					err = c.HDel(ctx, rdb.TaskKey("metadata"), field).Err()
+				} else {
+					err = c.HSet(ctx, rdb.TaskKey("metadata"), field, value).Err()
+				}
+				if err != nil {
+					t.Fatal(err)
+				}
+				before := dumpDB(t, c)
+				if _, err := s.Dequeue(ctx, time.Minute); !fairq.IsCode(err, fairq.Internal) {
+					t.Fatal("invalid metadata accepted", err)
+				}
+				if !reflect.DeepEqual(before, dumpDB(t, c)) {
+					t.Fatal("invalid metadata changed task/indexes")
+				}
+			})
+		}
+	}
+}
+
 func TestCorruptDurationRejectedBeforeWrite(t *testing.T) {
 	for _, tc := range []struct{ operation, field string }{
 		{"dequeue", "timeout_ms"}, {"dequeue", "retention_ms"}, {"done", "retention_ms"},
