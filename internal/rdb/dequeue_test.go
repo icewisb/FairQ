@@ -2,6 +2,7 @@ package rdb_test
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -159,7 +160,7 @@ func TestClaimProcess(t *testing.T) {
 					return
 				}
 				if err != nil {
-					t.Error(err)
+					t.Errorf("%v: %v", err, errors.Unwrap(err))
 					return
 				}
 				fmt.Println("CLAIM:" + a.ID)
