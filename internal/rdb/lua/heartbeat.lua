@@ -9,6 +9,6 @@ for i=2,#ARGV,2 do
     local id,token=ARGV[i],ARGV[i+1]
     local code=owner(id,token,now)
     if code=='OK' then redis.call('ZADD',lease,deadline,id) end
-    table.insert(result,{id,code,code=='OK' and tostring(deadline) or ''})
+    table.insert(result,{id,code,code=='OK' and deadline or ''})
 end
 return result

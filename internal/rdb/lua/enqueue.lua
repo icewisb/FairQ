@@ -9,4 +9,4 @@ redis.call('HSET',task,'msg',msg,'group',group,'state','pending','retry_count',0
     'max_retry',maxretry,'timeout_ms',timeout,'retention_ms',retention,'enqueued_at',now,'pending_since',now)
 redis.call('LPUSH',pending,id)
 if redis.call('SADD',members,group)==1 then redis.call('RPUSH',ready,group) end
-return {'OK',id,tostring(now)}
+return {'OK',id,now}

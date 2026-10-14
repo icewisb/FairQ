@@ -24,4 +24,4 @@ end
 local scanned=#entries/2
 local next=offset+scanned
 if next>=total then next=0 end
-return {'OK',tostring(next),tostring(scanned),rows}
+return {'OK',next,scanned,rows}

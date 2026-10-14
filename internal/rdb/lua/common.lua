@@ -83,5 +83,5 @@ local function fail_transition(id,now,delay,reason,decode)
     else
         redis.call('ZADD',retry,score,id)
     end
-    return {'OK',state,tostring(k),tostring(score)}
+    return {'OK',state,k,score}
 end

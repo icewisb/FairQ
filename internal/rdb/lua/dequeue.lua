@@ -45,4 +45,4 @@ redis.call('HDEL',task,'pending_since')
 redis.call('SADD',active,id)
 redis.call('ZADD',lease,deadline,id)
 if redis.call('LLEN',pending)>0 then redis.call('RPUSH',ready,group) else redis.call('SREM',members,group) end
-return {'OK',id,group,msg,token,tostring(deadline),tostring(timeout),tostring(count),tostring(maxretry)}
+return {'OK',id,group,msg,token,deadline,timeout,count,maxretry}
