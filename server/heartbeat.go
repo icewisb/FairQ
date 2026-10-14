@@ -3,8 +3,8 @@ package server
 import (
 	"context"
 
-	"fairq"
-	"fairq/internal/rdb"
+	"github.com/icewisb/FairQ"
+	"github.com/icewisb/FairQ/internal/rdb"
 )
 
 func (s *Server) heartbeat(ctx context.Context) {

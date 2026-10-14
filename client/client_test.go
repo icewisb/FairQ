@@ -7,11 +7,11 @@ import (
 	"testing"
 	"time"
 
-	"fairq"
-	"fairq/client"
-	"fairq/internal/base"
-	"fairq/internal/rdb"
-	"fairq/internal/testutil"
+	"github.com/icewisb/FairQ"
+	"github.com/icewisb/FairQ/client"
+	"github.com/icewisb/FairQ/internal/base"
+	"github.com/icewisb/FairQ/internal/rdb"
+	"github.com/icewisb/FairQ/internal/testutil"
 )
 
 func TestEnqueueConcurrentAndQuery(t *testing.T) {

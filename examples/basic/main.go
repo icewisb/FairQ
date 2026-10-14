@@ -10,9 +10,9 @@ import (
 	"os/signal"
 	"time"
 
-	"fairq"
-	"fairq/client"
-	"fairq/server"
+	"github.com/icewisb/FairQ"
+	"github.com/icewisb/FairQ/client"
+	"github.com/icewisb/FairQ/server"
 	"github.com/redis/go-redis/v9"
 )
 

@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"fairq"
+	"github.com/icewisb/FairQ"
 )
 
 var retryScript = script("retry")

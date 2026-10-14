@@ -6,9 +6,9 @@ import (
 	"strings"
 	"testing"
 
-	"fairq"
-	"fairq/client"
-	"fairq/internal/testutil"
+	"github.com/icewisb/FairQ"
+	"github.com/icewisb/FairQ/client"
+	"github.com/icewisb/FairQ/internal/testutil"
 )
 
 func TestMetrics(t *testing.T) {

@@ -12,11 +12,11 @@ import (
 	"testing"
 	"time"
 
-	"fairq"
-	"fairq/internal/base"
-	"fairq/internal/clock"
-	"fairq/internal/rdb"
-	"fairq/internal/testutil"
+	"github.com/icewisb/FairQ"
+	"github.com/icewisb/FairQ/internal/base"
+	"github.com/icewisb/FairQ/internal/clock"
+	"github.com/icewisb/FairQ/internal/rdb"
+	"github.com/icewisb/FairQ/internal/testutil"
 	"github.com/redis/go-redis/v9"
 )
 

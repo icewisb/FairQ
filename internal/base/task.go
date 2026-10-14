@@ -7,7 +7,7 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"fairq"
+	"github.com/icewisb/FairQ"
 )
 
 const MaxPayload = 256 * 1024

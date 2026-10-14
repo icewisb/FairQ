@@ -18,10 +18,10 @@ import (
 	"sync"
 	"time"
 
-	"fairq"
-	"fairq/client"
-	"fairq/inspector"
-	"fairq/server"
+	"github.com/icewisb/FairQ"
+	"github.com/icewisb/FairQ/client"
+	"github.com/icewisb/FairQ/inspector"
+	"github.com/icewisb/FairQ/server"
 	"github.com/redis/go-redis/v9"
 )
 

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"fairq"
+	"github.com/icewisb/FairQ"
 )
 
 var heartbeatScript = script("heartbeat")

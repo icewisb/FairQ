@@ -6,9 +6,9 @@ import (
 	"sync"
 	"time"
 
-	"fairq"
-	"fairq/internal/base"
-	"fairq/internal/rdb"
+	"github.com/icewisb/FairQ"
+	"github.com/icewisb/FairQ/internal/base"
+	"github.com/icewisb/FairQ/internal/rdb"
 )
 
 type execution struct {

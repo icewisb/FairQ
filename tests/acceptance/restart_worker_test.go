@@ -8,9 +8,9 @@ import (
 	"testing"
 	"time"
 
-	"fairq"
-	"fairq/internal/rdb"
-	"fairq/server"
+	"github.com/icewisb/FairQ"
+	"github.com/icewisb/FairQ/internal/rdb"
+	"github.com/icewisb/FairQ/server"
 	"github.com/redis/go-redis/v9"
 )
 

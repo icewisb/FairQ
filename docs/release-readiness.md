@@ -1,6 +1,6 @@
 # FairQ 发布验收
 
-日期：2026-10-14（Asia/Shanghai）。这是当前唯一发布报告；以源码为实现事实、v1.4 为契约、本次执行为测试证据。结论：**可以公开实验源码；可安装 v0.x、稳定版及生产就绪尚不通过**。
+日期：2026-10-14（Asia/Shanghai）。这是当前唯一发布报告；以源码为实现事实、v1.4 为契约、本次执行为测试证据。结论：**可以公开实验源码；正式 Module 迁移及本地外部接入已通过，真实远程安装仍 BLOCKED；稳定版及生产就绪尚不通过**。
 
 ## 范围、发现与提交
 
@@ -13,14 +13,15 @@
 | P2 Fixture 可靠性 | Redis 命令启动失败时 `node.stop` 解引用 nil Process，清理 panic 掩盖启动错误；AOF 用例早退缺 Close | 保护未启动进程，新增失败清理回归，补充连接释放 |
 | P2 测试生命周期 | 两处关闭测试靠 Sleep 推测进入关闭状态，失败时未释放阻塞 Handler | 等待实际 closing 状态和 Redis Lease 时间，失败也释放 Handler |
 | P2 文档治理 | README 混入详细配置/API；缺唯一发布矩阵，历史门禁容易失去上下文 | 精简 README，接入内容移到 usage，设计与运维各归一处，本文件统一验收 |
-| 发布门禁 | Module 为 `fairq` 且无 remote；正式 P01 复验和生产灰度未完成 | 保留原值，交维护者决定地址及后续验收，不推送或打 Tag |
+| 发布门禁 | 审计时 Module 为 `fairq` 且无 remote；正式 P01 复验和生产灰度未完成 | 维护者随后确认 `github.com/icewisb/FairQ`，已完成迁移和本地验证；远程匿名安装仍阻塞，长稳/灰度门禁不变 |
 
 本地提交：
 
 - `3efd059 test: strengthen FIFO acceptance and lifecycle fixture cleanup`：仅三个测试文件，定向 race 与 Diff 检查后提交。
-- `docs: consolidate usage and final release readiness`：README、使用/设计/测试指南与本报告；提交号由 `git log -1` 查询，避免报告自引用尚未生成的哈希。
+- `fba9077 docs: consolidate usage and final release readiness`：README、使用/设计/测试指南与本报告。
+- `build: migrate module to github.com/icewisb/FairQ`：本次路径迁移，34 个 Go 文件仅改 import，另改 go.mod、README、usage 和本报告。通过本地验证后提交；使用提交主题定位，避免自引用尚未生成的哈希。
 
-无运行时代码、Redis Key、Lua 原子边界、公共 API、依赖或 LICENSE 变更；未创建 CI/CD、Release、Tag，未 push、重写历史或操作生产。缺少 CI 不作为阻塞项。
+本次迁移除 import 路径外无 Go 逻辑变更；包名仍为 `fairq`，Redis Key、Lua 原子边界、公共 API 行为、依赖版本、go.sum 和 LICENSE 不变；未创建 CI/CD、Release、Tag，未 push、重写历史或操作生产。缺少 CI 不作为阻塞项。
 
 ## 核心审计结论与边界
 
@@ -42,11 +43,11 @@ Lua 热路径没有全局遍历；Heartbeat 单批最多 100，维护每轮最�
 | 显式负载与性能工具 | [tools/README](../tools/README.md) | 接入链接改到 usage；保留短测不等于长稳的限制 |
 | 当前覆盖、结果、遗留项与 GO/NO-GO | 本文件 | 不新增分阶段或分轮次报告 |
 
-按维护者本轮追加指令，历史失败证据和故障报告直接删除，不恢复、不归档；本轮基线中这些文件已由 `195c91b` 删除，因此无重复删除操作。Git 历史未改写。**历史 P01 仍为 FAIL，完整复验仍为 NOT_RUN**，删除附件不改变判定；此前采样修复不能替代正式长稳。
+此前按维护者当时指令，历史失败证据和故障报告已由 `195c91b` 删除；全仓审计时未重复删除或恢复。本次路径迁移按最新要求保留全部现存历史验收证据，Git 历史未改写。**历史 P01 仍为 FAIL，完整复验仍为 NOT_RUN**，删除附件不改变判定；此前采样修复不能替代正式长稳。
 
 ## 精简测试覆盖矩阵
 
-COVERED 表示该行限定契约有直接断言；PARTIAL 表示仅覆盖部分场景；MISSING 表示没有所需用例。PASS/FAIL/BLOCKED/NOT_RUN 单独描述本次执行，不能互换。路径均相对仓库根目录。除单列门禁外，PASS 均指本轮普通及 race 两次全量执行；多进程 helper 的直接空返回不算独立验收。
+COVERED 表示该行限定契约有直接断言；PARTIAL 表示仅覆盖部分场景；MISSING 表示没有所需用例。PASS/FAIL/BLOCKED/NOT_RUN 单独描述本次执行，不能互换。路径均相对仓库根目录。除单列门禁外，PASS 已用路径迁移后的普通及 race 两次全量执行重新核对；多进程 helper 的直接空返回不算独立验收。
 
 | ID | 契约/风险 | 实现位置 | 测试函数 | 层级 | 覆盖状态 | 本次结果 | 证据/处理 |
 | -- | ----- | ---- | ---- | -- | ---- | ---- | ----- |
@@ -75,8 +76,9 @@ COVERED 表示该行限定契约有直接断言；PARTIAL 表示仅覆盖部分�
 | Q23 | Quick Start 可运行、完成与关闭 | `examples/basic/main.go` | `examples/basic/main_test.go`: TestExampleCompletesAndShutsDown；另行 go run + SIGINT | 端到端/CLI | COVERED | PASS | Completed、退出码 0、Active/Lease 归零 |
 | Q24 | 测试基础设施失败也可清理 | `tests/acceptance/infrastructure_test.go`: node.stop | 同文件 TestNodeCleanupAfterStartFailure | 单元 | COVERED | PASS | 模拟不存在二进制、重复清理无 panic |
 | G01 | 正式 60min P01 与十万 Lease 性能门槛 | `tools/loadtest/main.go`、`tools/benchmark/main.go` | 显式工具 run；TestMetricsParsing、TestPercentiles 仅工具单元测试 | 长稳/性能 | PARTIAL | NOT_RUN | 按范围禁止执行；历史 P01 FAIL 不改判，单元 PASS 不等于门槛通过 |
-| G02 | 公共 Module 外部安装 | `go.mod`、公共 imports | 尚无已确认远端安装用例 | 发布 | MISSING | BLOCKED | 等待目标 GitHub 路径；本地 replace/Quick Start 不是远端安装验收 |
+| G02 | 公共 Module 真实远程安装 | `go.mod`、公共 imports | 临时外部模块：go get github.com/icewisb/FairQ@latest | 发布 | PARTIAL | BLOCKED | 已实际尝试，匿名远端要求认证，退出 1；不能判定仓库未创建还是未公开，未取得远程源码 |
 | G03 | 生产业务幂等、网络/容量、告警、灰度回退 | `docs/runbook.md`、业务集成 | 尚无目标环境业务验收 | 生产 | MISSING | NOT_RUN | 用户操作生产与后续授权；本地基础设施用例不能替代 |
+| G04 | 外部项目导入及编译四个公共包 | `go.mod`、根包、client、server、inspector | 全新临时模块：go mod tidy、go build ./...、go run . | 外部模块/本地 replace | COVERED | PASS | GOWORK=off，显式正式路径 require/replace；使用 fairq.Task 和公共 API 符号，无 internal 依赖；不等于 G02 |
 
 ## 测试治理与执行成本
 
@@ -90,7 +92,11 @@ COVERED 表示该行限定契约有直接断言；PARTIAL 表示仅覆盖部分�
 
 保留 48 个故障子测试、10×80 进程领取、10 进程维护、整数/时长/慢 Writer/GC 历史回归。剩余 Sleep 主要是有截止的条件轮询、Handler 模拟耗时，或验证“等待期间不领取/关闭后不续租”的负向观察窗口；未机械删除。两项真实恢复用例各约 15–17s，含契约规定退避，不为缩短全量耗时改成假时钟。长稳和完整性能工具未混入 go test。
 
-## 本次实际执行
+## 实际执行记录
+
+### 全仓审计验证（路径迁移前）
+
+下列记录保留为迁移前证据；不充当迁移后的 PASS。
 
 环境：macOS arm64，Go 1.27.1，Redis 8.0.2（本机原生 TLS 构建）。本轮新建专用 loopback `127.0.0.1:60792`，768MiB、noeviction、无持久化；基础设施测试另建临时实例，AOF 使用 appendfsync=always。未复用既有 Redis；验收后核对 PID/端口并关闭本轮实例。耗时为命令墙钟时间，包并行耗时不能相加。
 
@@ -111,10 +117,30 @@ COVERED 表示该行限定契约有直接断言；PARTIAL 表示仅覆盖部分�
 
 普通/race 各记录 60 个顶层 PASS、127 个子测试 PASS、0 FAIL、0 SKIP；其中 3 个顶层函数是子进程 helper，其父用例才提供有效验收。没有把测试数量当质量指标。race 的实际基础设施结果：AOF 95 Hash 保留、RTO 172.34ms；RDB 95 Hash 恢复、109.57ms；Sentinel 100 个已确认且验证复制水位的任务保留、1.812s；运行中 Worker 随 Redis 重启后第二次执行、16.067s（含真实退避）。这些都是本机演练观察值，不是 SLA。
 
+### 正式 Module 迁移验证（本次）
+
+基线 `fba9077`，仍为 macOS arm64、Go 1.27.1、Redis 8.0.2 TLS 构建。本次重新启动专用 `127.0.0.1:56031`（768MiB/noeviction/无持久化），全部测试重新执行；验证完核对 PID/端口并关闭实例。普通/race 各 60 个顶层 PASS、127 个子测试 PASS、0 FAIL、0 SKIP；helper 的直接返回仍不作为独立验收。
+
+| 命令/检查 | 本次结果 | 耗时 |
+|---|---|---|
+| `gofmt -w` 修改的 Go 文件；`gofmt -l` 全部跟踪 Go 文件 | PASS，检查输出为空 | 检查 0.032s |
+| `go mod tidy` | PASS，依赖版本及 go.sum 未变化 | 0.045s |
+| `go vet ./...` | PASS | 0.384s |
+| `go test ./... -count=1 -v -timeout 120s` | PASS，含真实 Redis 集成与基础设施测试 | 30.932s |
+| `go test -race ./... -count=1 -v -timeout 120s` | PASS，无 race 报告 | 32.594s |
+| `go mod verify` | PASS | 0.123s |
+| `go run ./examples/basic -redis 127.0.0.1:56031` 后 SIGINT | PASS，Completed、退出 0、Active/Lease 空 | 0.971s |
+| 全新外部模块本地 replace：`go mod tidy`、`go build ./...`、`go run .` | PASS，根包及 client/server/inspector 全部可导入编译 | 合计 1.923s |
+| 另一全新外部模块：`go get github.com/icewisb/FairQ@latest` | BLOCKED，命令退出 1，GitHub 匿名访问要求认证 | 合计 4.362s |
+
+外部验证都设置 `GOWORK=off`。本地验证执行 README 中正式路径的 require/replace，临时 main 直接引用 `fairq.Task`、`client.Config`、`server.Config`、`inspector.New`；该程序仅验证公共符号编译运行，Redis 行为由全量测试和 Quick Start 验证。远程验证没有 replace，使用公共 Go proxy/direct 且禁止 Git 凭据提示；单独匿名 `git ls-remote https://github.com/icewisb/FairQ.git` 也失败，不能将本地成功称为真实远程安装成功。
+
+逐个 Go 文件与基线作机械比对，差异严格限于 import 替换及 gofmt；未修改 Lua、Redis Key、任务状态机、测试断言或公共 API 行为。现有 Markdown 链接、覆盖矩阵中的测试函数与本次两轮日志再次核对；未新增报告、测试或依赖，未删除历史证据。原先无 remote，已按授权配置 `origin=git@github.com:icewisb/FairQ.git`；配置不包含在源码提交中。
+
 ## 开源检查与参考
 
-- `module fairq` 与 imports 一致，但不具备已确认的 GitHub Module 路径；无 remote。没有擅改路径或宣称 `go get` 可用。
-- 保留已有 MIT LICENSE，署名 2026 icew；不重新选择许可。源码未 vendor 依赖，本轮未移植第三方代码。依赖缓存中实际 LICENSE 核对：google/uuid v1.6.0 为 BSD-3-Clause，go-redis/v9 v9.19.0 为 BSD-2-Clause，xxhash/v2 v2.3.0 和 atomic v1.11.0 为 MIT。以后分发含依赖的二进制仍需附相应第三方许可。
+- 正式 Module 为 `github.com/icewisb/FairQ`，34 个 Go 文件 import、README 安装/仓库链接与 usage 已同步；根包名继续小写 `fairq`。本地外部导入已验证，真实远程安装尚 BLOCKED，见 G02/G04。
+- 本次重新核对并保留已有 MIT LICENSE，署名 2026 icew；GitHub owner 不代表必须修改版权署名，不重新选择许可。源码未 vendor 依赖，本轮未移植第三方代码。依赖缓存中实际 LICENSE 核对：google/uuid v1.6.0 为 BSD-3-Clause，go-redis/v9 v9.19.0 为 BSD-2-Clause，xxhash/v2 v2.3.0 和 atomic v1.11.0 为 MIT。以后分发含依赖的二进制仍需附相应第三方许可。
 - 当前文件与截至测试提交的全部可达历史 206 个不同 blob（另扫当前 69 个文件） 经私钥头、GitHub/常见服务 token、AWS Key、带凭据 URL、开发者绝对路径模式检查，无命中。测试固定 ACL 口令仅用于一次性隔离 fixture，TLS 私钥运行时生成。未回显凭据、未改写历史。定向模式检查不等于全面秘密检测，不覆盖不可达对象、外部日志或未识别的低熵口令。
 - .gitignore 已排除 env、日志、coverage、二进制测试及 profile；当前无跟踪临时构建产物。工具 JSON 报告路径由用户指定，本次产物只在临时目录，不加入仓库。
 - 未运行漏洞数据库扫描、独立权属调查、Go 1.24 最低版本、Windows 或其他 Redis 版本；不把依赖校验当作漏洞扫描，不扩大兼容性声明。
@@ -128,10 +154,10 @@ COVERED 表示该行限定契约有直接断言；PARTIAL 表示仅覆盖部分�
 | 层级 | 判定 | 尚缺什么 |
 |---|---|---|
 | 公开源码 | **GO**，以 MIT 实验项目公开供评审和本地试用 | 本轮无已确认阻断源码公开的缺陷；维护者执行公开操作，本轮未 push |
-| 可安装 v0.x 实验版 | **NO-GO（待发布配置）** | 确认仓库/Module 路径，统一修改 go.mod/imports，独立目录执行外部安装与 Quick Start；明确不承诺稳定 API/生产就绪 |
+| 可安装 v0.x 实验版 | **NO-GO（待远程发布验证）** | 路径迁移、本地外部编译及 Quick Start 已通过；维护者公开并推送后，需在无 replace 的新项目完成真实 go get 和编译，再按实验版发布 |
 | 稳定版 | **NO-GO** | 上述发布验证、正式 P01 复验、目标版本与性能验收未完成 |
 | 生产就绪 | **NO-GO** | 历史 P01 FAIL、正式复验 NOT_RUN；目标部署负载、真实业务幂等、告警值班、灰度及回退尚无验收 |
 
-维护者需亲自决定：目标 GitHub owner/repo 与 Module 大小写；要发布实验版还是继续走稳定/生产门禁；之后在哪个隔离目标环境安排长稳与性能复验。LICENSE 已确定，不重复要求选择。
+维护者已确认目标路径及大小写，LICENSE 保持既有 MIT。仍需亲自决定实验版发布时机、仓库公开状态及推送操作；稳定/生产路线需另行确定隔离目标环境和验收安排。没有新增许可证选择事项；若日后分发包含第三方依赖的二进制，需随分发物附对应许可证和版权声明。
 
-下一步先确认公开仓库地址并完成 Module/外部安装验证，即可准备实验版；稳定或生产使用另行授权正式 60 分钟 P01、完整性能测试和业务灰度。普通 P2/P3 风格优化与缺少 CI 均不阻塞源码公开。当前没有需要通过扩大架构来解决的已确认缺陷。
+下一步由维护者公开 `icewisb/FairQ` 并推送本地迁移提交，然后在新的临时 Go 项目执行 `go get github.com/icewisb/FairQ@latest`，加入公共包 import 并 `go build ./...`（不设置 replace），确认版本来自远端后即可准备实验版；稳定或生产使用另行授权正式 60 分钟 P01、完整性能测试和业务灰度。普通 P2/P3 风格优化与缺少 CI 均不阻塞源码公开。当前没有需要通过扩大架构来解决的已确认缺陷。

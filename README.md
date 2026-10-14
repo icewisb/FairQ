@@ -18,9 +18,17 @@ FairQ 是一个 Go + Redis 任务队列，按 Group 公平轮转领取任务。�
 
 需要 Go 1.24+ 和独立的 Redis 单实例或 Sentinel。当前真实验证版本是 **Redis 8.0.2（含 TLS）**；不声明未测试版本的兼容性，不支持 Redis Cluster。Redis 使用 `noeviction`，并按业务需要配置持久化、备份和 ACL/TLS。
 
-公开模块路径尚未确定，当前通过本地源码试用。在仓库根目录下载依赖：
+官方仓库：[icewisb/FairQ](https://github.com/icewisb/FairQ)。Module 路径为 `github.com/icewisb/FairQ`，Go 包名仍为 `fairq`。仓库公开且迁移提交推送后，可在自己的 Go 项目中安装：
 
 ```sh
+go get github.com/icewisb/FairQ@latest
+```
+
+远程安装的实际验证状态见 [发布验收](docs/release-readiness.md)。运行仓库示例时，先获取源码（已有本地源码可直接进入目录）：
+
+```sh
+git clone https://github.com/icewisb/FairQ.git
+cd FairQ
 go mod download
 ```
 
@@ -38,10 +46,10 @@ go run ./examples/basic -redis 127.0.0.1:16380
 
 看到 `handled task ...` 后按 Ctrl-C，Worker 会优雅关闭。这个 Redis 命令仅用于可丢弃的本地演示，未启用持久化。完整源码见 [examples/basic](examples/basic/main.go)。
 
-在另一个本地 Go 项目试用时，可以使用本地替换（路径换成实际克隆目录）：
+远程尚不可用时，在另一个已初始化的本地 Go 项目中加入 FairQ import，再使用本地替换（路径换成实际源码目录）。这只验证本地接入，不代表远程安装通过：
 
 ```sh
-go mod edit -require=fairq@v0.0.0 -replace=fairq=/absolute/path/to/FairQ
+go mod edit -require=github.com/icewisb/FairQ@v0.0.0 -replace=github.com/icewisb/FairQ=/absolute/path/to/FairQ
 go mod tidy
 ```
 

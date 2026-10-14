@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"fairq"
 	"github.com/google/uuid"
+	"github.com/icewisb/FairQ"
 )
 
 type Attempt struct {

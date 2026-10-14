@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"fairq"
+	"github.com/icewisb/FairQ"
 	"github.com/redis/go-redis/v9"
 )
 

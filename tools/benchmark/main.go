@@ -13,10 +13,10 @@ import (
 	"strings"
 	"time"
 
-	"fairq"
-	"fairq/client"
-	"fairq/inspector"
-	"fairq/internal/rdb"
+	"github.com/icewisb/FairQ"
+	"github.com/icewisb/FairQ/client"
+	"github.com/icewisb/FairQ/inspector"
+	"github.com/icewisb/FairQ/internal/rdb"
 	"github.com/redis/go-redis/v9"
 )
 

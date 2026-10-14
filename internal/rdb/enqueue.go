@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"time"
 
-	"fairq"
-	"fairq/internal/base"
+	"github.com/icewisb/FairQ"
+	"github.com/icewisb/FairQ/internal/base"
 )
 
 var enqueueScript = script("enqueue")

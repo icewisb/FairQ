@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"fairq/internal/rdb"
-	"fairq/internal/testutil"
+	"github.com/icewisb/FairQ/internal/rdb"
+	"github.com/icewisb/FairQ/internal/testutil"
 )
 
 func TestExampleCompletesAndShutsDown(t *testing.T) {

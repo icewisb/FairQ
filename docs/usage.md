@@ -1,6 +1,6 @@
 # FairQ 使用指南
 
-从 [README Quick Start](../README.md#快速开始) 和 [完整可运行示例](../examples/basic/main.go) 开始。公开 Module 路径尚未确定，目前导入 `fairq`、`fairq/client`、`fairq/server`；本地 replace 方法只在 README 维护。生产者与 Worker 可以独立部署。
+从 [README Quick Start](../README.md#快速开始) 和 [完整可运行示例](../examples/basic/main.go) 开始。正式 Module 为 `github.com/icewisb/FairQ`，导入根包后仍使用小写标识符 `fairq`；生产者、Worker 和查询包分别为 `github.com/icewisb/FairQ/client`、`github.com/icewisb/FairQ/server`、`github.com/icewisb/FairQ/inspector`。安装与本地 replace 方法只在 README 维护。生产者与 Worker 可以独立部署。
 
 ## 生命周期与配置
 

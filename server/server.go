@@ -9,9 +9,9 @@ import (
 	"sync"
 	"time"
 
-	"fairq"
-	"fairq/internal/clock"
-	"fairq/internal/rdb"
+	"github.com/icewisb/FairQ"
+	"github.com/icewisb/FairQ/internal/clock"
+	"github.com/icewisb/FairQ/internal/rdb"
 )
 
 type Server struct {

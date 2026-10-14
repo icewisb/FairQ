@@ -5,10 +5,10 @@ import (
 	"log/slog"
 	"time"
 
-	"fairq"
-	"fairq/internal/base"
-	"fairq/internal/clock"
-	"fairq/internal/rdb"
+	"github.com/icewisb/FairQ"
+	"github.com/icewisb/FairQ/internal/base"
+	"github.com/icewisb/FairQ/internal/clock"
+	"github.com/icewisb/FairQ/internal/rdb"
 )
 
 type tickStats struct{ Scanned, Converted, Isolated, Failed int }

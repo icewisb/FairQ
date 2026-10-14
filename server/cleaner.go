@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"fairq/internal/rdb"
+	"github.com/icewisb/FairQ/internal/rdb"
 )
 
 func (s *Server) cleaner(ctx context.Context) {
