@@ -3,6 +3,7 @@ package inspector
 import (
 	"context"
 	"fmt"
+	"math"
 	"reflect"
 	"testing"
 	"time"
@@ -36,6 +37,102 @@ func snapshot(t *testing.T, c *redis.Client) map[string]string {
 		if cursor == 0 {
 			return out
 		}
+	}
+}
+
+func TestCheckInvalidIndexScores(t *testing.T) {
+	c := testutil.Redis(t, 4)
+	ctx := context.Background()
+	in, err := New(ctx, testutil.Options(t, 4))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer in.Close()
+	group, _ := base.Group("g")
+	for _, name := range []string{"lease", "retry", "archived", "completed"} {
+		t.Run(name, func(t *testing.T) {
+			state := name
+			if name == "lease" {
+				state = "active"
+			}
+			key := rdb.Prefix + name
+			if err := c.HSet(ctx, rdb.TaskKey(name), "state", state, "group", group,
+				"msg", `{"type":"test","payload":""}`, "attempt_token", "private-token",
+				"retry_count", 0, "max_retry", 25, "timeout_ms", 0, "retention_ms", 0,
+				"enqueued_at", 0).Err(); err != nil {
+				t.Fatal(err)
+			}
+			if state == "active" {
+				if err := c.SAdd(ctx, rdb.Active, name).Err(); err != nil {
+					t.Fatal(err)
+				}
+			}
+			for _, score := range []float64{math.Inf(1), math.Inf(-1), -1, 0.5, 1 << 53, 0, 1<<53 - 1} {
+				t.Run(fmt.Sprint(score), func(t *testing.T) {
+					if err := c.ZAdd(ctx, key, redis.Z{Member: name, Score: score}).Err(); err != nil {
+						t.Fatal(err)
+					}
+					before := snapshot(t, c)
+					report, err := in.Check(ctx)
+					if err != nil || !report.Complete {
+						t.Fatal(report, err)
+					}
+					want := 1
+					if score == 0 || score == 1<<53-1 {
+						want = 0
+					}
+					if len(report.Issues) != want || (want == 1 && (report.Issues[0].Kind != "SCORE" || report.Issues[0].Key != key || report.Issues[0].TaskID != name)) {
+						t.Fatalf("score %v: %+v", score, report)
+					}
+					if !reflect.DeepEqual(before, snapshot(t, c)) {
+						t.Fatal("inspection modified data")
+					}
+				})
+			}
+		})
+	}
+}
+
+func TestCheckInvalidNumericFields(t *testing.T) {
+	c := testutil.Redis(t, 4)
+	ctx := context.Background()
+	opts := testutil.Options(t, 4)
+	producer, err := client.New(ctx, client.Config{Redis: opts})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer producer.Close()
+	if _, err := producer.Enqueue(ctx, fairq.Task{ID: "numeric", Type: "test"}, fairq.EnqueueOptions{GroupKey: "g"}); err != nil {
+		t.Fatal(err)
+	}
+	in, err := New(ctx, opts)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer in.Close()
+	for _, field := range []string{"retry_count", "max_retry", "timeout_ms", "retention_ms", "enqueued_at", "pending_since"} {
+		t.Run(field, func(t *testing.T) {
+			for _, value := range []string{"-1", "9007199254740992", "0.5", "invalid", "0", "9007199254740991"} {
+				if err := c.HSet(ctx, rdb.TaskKey("numeric"), field, value).Err(); err != nil {
+					t.Fatal(err)
+				}
+				before := snapshot(t, c)
+				report, err := in.Check(ctx)
+				if err != nil || !report.Complete {
+					t.Fatal(report, err)
+				}
+				want := 1
+				if value == "0" || value == "9007199254740991" {
+					want = 0
+				}
+				if len(report.Issues) != want || (want == 1 && (report.Issues[0].Kind != "FIELD" || report.Issues[0].Detail != field)) {
+					t.Fatalf("%s=%s: %+v", field, value, report)
+				}
+				if !reflect.DeepEqual(before, snapshot(t, c)) {
+					t.Fatal("inspection modified data")
+				}
+			}
+		})
 	}
 }
 

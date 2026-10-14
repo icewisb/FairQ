@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 
@@ -141,6 +142,12 @@ func (i *Inspector) Check(ctx context.Context) (Report, error) {
 				values[e.ID] = true
 				if name == "ready" {
 					readyCounts[e.ID]++
+				}
+				switch name {
+				case "lease", "retry", "archived", "completed":
+					if math.IsNaN(e.Score) || e.Score < 0 || e.Score > 1<<53-1 || e.Score != math.Trunc(e.Score) {
+						add("SCORE", rdb.Prefix+name, e.ID, "expected nonnegative exact integer milliseconds")
+					}
 				}
 			}
 			cursor = page.Next
@@ -281,15 +288,14 @@ func (i *Inspector) Check(ctx context.Context) (Report, error) {
 			if err != nil || gerr != nil || canonical != h["group"] {
 				add("GROUP", key, id, "")
 			}
-			for _, field := range []string{"retry_count", "max_retry", "timeout_ms", "retention_ms", "enqueued_at"} {
-				v, err := strconv.ParseInt(h[field], 10, 64)
-				if err != nil || v < 0 {
-					add("FIELD", key, id, field)
-				}
-			}
+			fields := []string{"retry_count", "max_retry", "timeout_ms", "retention_ms", "enqueued_at"}
 			if state == "pending" {
-				if _, err := strconv.ParseInt(h["pending_since"], 10, 64); err != nil {
-					add("FIELD", key, id, "pending_since")
+				fields = append(fields, "pending_since")
+			}
+			for _, field := range fields {
+				v, err := strconv.ParseInt(h[field], 10, 64)
+				if err != nil || v < 0 || v > 1<<53-1 {
+					add("FIELD", key, id, field)
 				}
 			}
 			if _, err := base.Decode([]byte(h["msg"])); err != nil {

@@ -36,7 +36,7 @@
 | X03 | 2,4 | bad_refs≥10000仍写证据并隔离；证据写失败原引用不变且INTERNAL | §13.2,13.5 |
 | X04 | 4 | 孤儿Lease只删可确认错误引用；无法确认的Active现场保留 | §6.2 |
 | X05 | 5 | 解码失败带当前token归档且msg不变；失权时不能归档新尝试 | §6.2 |
-| X06 | 6 | Inspector覆盖I1–I6、孤儿主索引与bad_refs；所有调用前后Key无写入，使用分页而非KEYS | §6.3,10.2 |
+| X06 | 6 | Inspector覆盖I1–I6、孤儿主索引与bad_refs；检查时间索引和Hash数值范围；所有调用前后Key无写入，使用分页而非KEYS | §6.3,10.2 |
 | O01 | 6 | Archived时间保留90d、数量10000只告警；清理重验终态不误删Active；bad_refs无自动清理 | §5.6,13.5 |
 | O02 | 6 | 指标包含enqueue/dequeue/done/retry/archive、Active/Lease/Retry/ready/bad_refs深度、扫描/转换、Redis p99、最老Pending等待 | §10.4 |
 | O03 | 6 | 日志关联TaskID/Group/尝试摘要，无Payload/完整token；context、连接超时、ACL/TLS可配置 | §7 |
